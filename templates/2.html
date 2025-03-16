@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    * {
+      direction: rtl;
+    }
+
+    /* Reset default margins and paddings */
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      /* Prevent horizontal scrolling */
+    }
+
+    /* Adjust container width for desktop to reduce white space */
+    .container-fluid {
+      max-width: 95%;
+      margin: auto;
+    }
+
+
+    /* Responsive layout adjustments */
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    /* Adjust column sizing for cards */
+    .col-sm-6,
+    .col-md-4,
+    .col-lg-3,
+    .col-xl-2 {
+      flex: 1 1 calc(33.33% - 1rem);
+      max-width: calc(33.33% - 1rem);
+    }
+
+    @media (max-width: 1200px) {
+
+      .col-sm-6,
+      .col-md-4,
+      .col-lg-3,
+      .col-xl-2 {
+        flex: 1 1 calc(33.33% - 1rem);
+        max-width: calc(33.33% - 1rem);
+      }
+    }
+
+    @media (max-width: 992px) {
+
+      .col-sm-6,
+      .col-md-4,
+      .col-lg-3,
+      .col-xl-2 {
+        flex: 1 1 calc(33.33% - 1rem);
+        max-width: calc(33.33% - 1rem);
+      }
+    }
+
+    @media (max-width: 768px) {
+
+      .col-sm-6,
+      .col-md-4,
+      .col-lg-3,
+      .col-xl-2 {
+        flex: 1 1 calc(50% - 1.5rem);
+        max-width: calc(50% - 1.5rem);
+      }
+    }
+
+    @media (max-width: 576px) {
+
+      .col-sm-6,
+      .col-md-4,
+      .col-lg-3,
+      .col-xl-2 {
+        flex: 1 1 100%;
+        max-width: 100%;
+      }
+    }
+
+
+
+    /* Adjust card styling */
+    .card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease;
+    }
+
+    .card-img-top {
+      height: 200px;
+      object-fit: cover;
+      /* Ensure consistent image size */
+    }
+
+    .card-title {
+      font-size: 1rem;
+      white-space: normal;
+      /* Allow text wrapping */
+      overflow: visible;
+      /* Remove truncation */
+      text-overflow: ellipsis;
+    }
+
+    .card-text {
+      font-size: 0.9rem;
+    }
+
+    .btn {
+      width: 100%;
+      /* Full-width button */
+    }
+
+    /* Spacing adjustments for search and filter */
+    #search-box,
+    #category-filter {
+      margin-bottom: 10px;
+    }
+
+    .pagination {
+      display: flex;
+      /* Use flexbox for alignment */
+      flex-wrap: center;
+      /* Allow wrapping onto new lines */
+      justify-content: center;
+      /* Center the pagination items */
+      gap: 10px;
+      /* Add some spacing between numbers */
+      padding: 20px 0;
+      /* Add padding for better visuals */
+    }
+
+    .pagination a {
+      padding: 8px 12px;
+      /* Adjust padding for buttons */
+      border: 1px solid #ddd;
+      /* Add borders to numbers */
+      text-decoration: none;
+      color: #000;
+      border-radius: 5px;
+    }
+
+    .pagination a:hover {
+      background-color: #f0f0f0;
+      /* Add hover effect */
+    }
+
+    .post-title {
+      font-size: 1.2rem;
+      /* Increase font size if needed */
+      white-space: normal;
+      /* Allow titles to wrap onto the next line */
+      overflow: visible;
+      /* Ensure no truncation */
+    }
+
+    .pagination .active a {
+      background-color: #007bff;
+      color: #fff;
+      border-color: #007bff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid mt-4">
+    <div class="row align-items-center">
+      <!-- Search Box -->
+      <div class="col-md-6 mb-3">
+        <input type="text" id="search-box" class="form-control" placeholder="دنبال چه تخفیفی هستید ..." />
+      </div>
+
+      <!-- Category Filter -->
+      <div class="col-md-6 mb-3">
+        <label for="category-filter" class="form-label">فیلتر براساس دسته‌بندی:</label>
+        <select id="category-filter" class="form-select">
+          <option value="all">همه</option>
+          {#
+          {% assign categories = site.posts | map: "category" | uniq | sort %}
+          {% for category in categories %}
+          <option value="{{ category }}">{{ category }}</option>
+          {% endfor %}
+          #}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post List -->
+  <div id="post-list" class="container">
+    <div class="row" id="posts-container"></div>
+  </div>
+
+  <!-- Pagination -->
+  <nav>
+    <ul id="pagination" class="pagination mt-4"></ul>
+  </nav>
+
+  <!-- JavaScript for Filtering and Pagination -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const postsList = document.getElementById("post-list");
+      const categoryFilter = document.getElementById("category-filter");
+      const paginationContainer = document.getElementById("pagination");
+      const searchBox = document.getElementById("search-box");
+      const postsPerPage = 10; // Adjust as needed
+
+
+
+
+
+      const allPosts = [
+        {% for post in data %}
+    {
+        title: "{{ post.title | safe }}",
+        url: "{{ post.affiliate_link | safe }}",
+        img_url: "{{ post.img_url | safe }}",
+        excerpt: "{{ post.Summary | safe }}",
+        category: "{{ post.category | safe }}",
+        main_price: "{{ post.main_price | safe }}",
+        discounted_price: "{{ post.discounted_price | safe }}",
+        discount_percentage: "{{ post.discount_percentage  | safe }}"
+      } {% if not loop.last %}, {% endif %}
+    {% endfor %}
+      ];
+
+    let filteredPosts = allPosts;
+
+    function renderPosts(posts, page = 1) {
+      const start = (page - 1) * postsPerPage;
+      const end = start + postsPerPage;
+      postsList.innerHTML = "";
+
+      const row = document.createElement("div");
+      row.className = "row";
+
+      posts.slice(start, end).forEach(post => {
+        const div = document.createElement("div");
+        div.className = "col-sm-6 col-md-4 col-lg-6 col-xl-2"; /* Added col-xl-2 for larger screens */
+        div.innerHTML = `
+            <div class="card h-100">
+              <img src="${post.img_url}" class="card-img-top" alt="${post.title}">
+              <div class="card-body" dir="rtl">
+                <h5 class="card-title">${post.title}</h5>
+                <p class="card-text">
+                  <strong>قیمت اولیه:</strong> <del>${post.main_price}</del> <strong>${post.discounted_price} تومان</strong> <br>
+                  <strong>درصد تخفیف: ${post.discount_percentage}% </strong>
+                </p>
+                <a href="${post.url}" class="btn btn-primary">جزئیات کلاس</a>
+              </div>
+            </div>
+          `;
+        row.appendChild(div);
+      });
+
+      postsList.appendChild(row);
+    }
+
+    function renderPagination(posts, currentPage = 1) {
+      const totalPages = Math.ceil(posts.length / postsPerPage);
+      paginationContainer.innerHTML = "";
+
+      if (totalPages <= 1) return;
+
+      const maxVisiblePages = 5; // Adjust the sliding window size
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+      if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+
+      // First Page and Previous buttons
+      if (currentPage > 1) {
+        const firstLi = document.createElement("li");
+        firstLi.className = "page-item";
+        firstLi.innerHTML = `<a href="#" class="page-link">اولین</a>`;
+        firstLi.addEventListener("click", (e) => {
+          e.preventDefault();
+          renderPosts(posts, 1);
+          renderPagination(posts, 1);
+        });
+        paginationContainer.appendChild(firstLi);
+
+        const prevLi = document.createElement("li");
+        prevLi.className = "page-item";
+        prevLi.innerHTML = `<a href="#" class="page-link">قبلی</a>`;
+        prevLi.addEventListener("click", (e) => {
+          e.preventDefault();
+          renderPosts(posts, currentPage - 1);
+          renderPagination(posts, currentPage - 1);
+        });
+        paginationContainer.appendChild(prevLi);
+      }
+
+      // Page numbers
+      for (let i = startPage; i <= endPage; i++) {
+        const li = document.createElement("li");
+        li.className = `page-item ${i === currentPage ? "active" : ""}`;
+        li.innerHTML = `<a href="#" class="page-link">${i}</a>`;
+        li.addEventListener("click", (e) => {
+          e.preventDefault();
+          renderPosts(posts, i);
+          renderPagination(posts, i);
+        });
+        paginationContainer.appendChild(li);
+      }
+
+      // Next and Last buttons
+      if (currentPage < totalPages) {
+        const nextLi = document.createElement("li");
+        nextLi.className = "page-item";
+        nextLi.innerHTML = `<a href="#" class="page-link">بعدی</a>`;
+        nextLi.addEventListener("click", (e) => {
+          e.preventDefault();
+          renderPosts(posts, currentPage + 1);
+          renderPagination(posts, currentPage + 1);
+        });
+        paginationContainer.appendChild(nextLi);
+
+        const lastLi = document.createElement("li");
+        lastLi.className = "page-item";
+        lastLi.innerHTML = `<a href="#" class="page-link">آخرین</a>`;
+        lastLi.addEventListener("click", (e) => {
+          e.preventDefault();
+          renderPosts(posts, totalPages);
+          renderPagination(posts, totalPages);
+        });
+        paginationContainer.appendChild(lastLi);
+      }
+    }
+
+
+
+    function filterPostsByCategory(category) {
+      return allPosts.filter(post => category === "all" || post.category === category);
+    }
+
+    function filterPostsBySearch(query) {
+      return allPosts.filter(post => post.title.toLowerCase().includes(query.toLowerCase()));
+    }
+
+    function updateView() {
+      const searchQuery = searchBox.value.trim();
+      const selectedCategory = categoryFilter.value;
+
+      if (searchQuery.length > 0) {
+        filteredPosts = filterPostsBySearch(searchQuery);
+      } else {
+        filteredPosts = filterPostsByCategory(selectedCategory);
+      }
+
+      renderPosts(filteredPosts, 1);
+      renderPagination(filteredPosts);
+    }
+
+    searchBox.addEventListener("input", updateView);
+    categoryFilter.addEventListener("change", updateView);
+
+    renderPosts(filteredPosts, 1);
+    renderPagination(filteredPosts);
+    });
+  </script>
+</body>
+
+</html>

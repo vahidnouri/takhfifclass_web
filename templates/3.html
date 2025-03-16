@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        * {
+            direction: rtl;
+        }
+
+        /* Reset default margins and paddings */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            /* Prevent horizontal scrolling */
+        }
+
+        /* Adjust container width for desktop to reduce white space */
+        .container-fluid {
+            max-width: 95%;
+            margin: auto;
+        }
+
+
+        /* Responsive layout adjustments */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        /* Adjust column sizing for cards */
+        .col-sm-6,
+        .col-md-4,
+        .col-lg-3,
+        .col-xl-2 {
+            flex: 1 1 calc(33.33% - 1rem);
+            max-width: calc(33.33% - 1rem);
+        }
+
+        @media (max-width: 1200px) {
+
+            .col-sm-6,
+            .col-md-4,
+            .col-lg-3,
+            .col-xl-2 {
+                flex: 1 1 calc(33.33% - 1rem);
+                max-width: calc(33.33% - 1rem);
+            }
+        }
+
+        @media (max-width: 992px) {
+
+            .col-sm-6,
+            .col-md-4,
+            .col-lg-3,
+            .col-xl-2 {
+                flex: 1 1 calc(33.33% - 1rem);
+                max-width: calc(33.33% - 1rem);
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .col-sm-6,
+            .col-md-4,
+            .col-lg-3,
+            .col-xl-2 {
+                flex: 1 1 calc(50% - 1.5rem);
+                max-width: calc(50% - 1.5rem);
+            }
+        }
+
+        @media (max-width: 576px) {
+
+            .col-sm-6,
+            .col-md-4,
+            .col-lg-3,
+            .col-xl-2 {
+                flex: 1 1 100%;
+                max-width: 100%;
+            }
+        }
+
+        /* Adjust card styling */
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease;
+        }
+
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+            /* Ensure consistent image size */
+        }
+
+        .card-title {
+            font-size: 1rem;
+            white-space: normal;
+            /* Allow text wrapping */
+            overflow: visible;
+            /* Remove truncation */
+            text-overflow: ellipsis;
+        }
+
+        .card-text {
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            width: 100%;
+            /* Full-width button */
+        }
+
+        /* Spacing adjustments for search and filter */
+        #search-box,
+        #category-filter {
+            margin-bottom: 10px;
+        }
+
+        .pagination {
+            display: flex;
+            /* Use flexbox for alignment */
+            flex-wrap: center;
+            /* Allow wrapping onto new lines */
+            justify-content: center;
+            /* Center the pagination items */
+            gap: 10px;
+            /* Add some spacing between numbers */
+            padding: 20px 0;
+            /* Add padding for better visuals */
+        }
+
+        .pagination a {
+            padding: 8px 12px;
+            /* Adjust padding for buttons */
+            border: 1px solid #ddd;
+            /* Add borders to numbers */
+            text-decoration: none;
+            color: #000;
+            border-radius: 5px;
+        }
+
+        .pagination a:hover {
+            background-color: #f0f0f0;
+            /* Add hover effect */
+        }
+
+        .post-title {
+            font-size: 1.2rem;
+            /* Increase font size if needed */
+            white-space: normal;
+            /* Allow titles to wrap onto the next line */
+            overflow: visible;
+            /* Ensure no truncation */
+        }
+
+        .pagination .active a {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+    </style>
+</head>
+
+
+<body>
+    <!-- HEADER -->
+    <header class="site-header" role="banner">
+        <div class="wrapper"><a class="site-title" rel="author" href="/">تخفیف کلاس</a>
+            <nav class="site-nav">
+                <input type="checkbox" id="nav-trigger" class="nav-trigger">
+                <label for="nav-trigger">
+                    <span class="menu-icon">
+                        <svg viewBox="0 0 18 15" width="18px" height="15px">
+                            <path
+                                d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z">
+                            </path>
+                        </svg>
+                    </span>
+                </label>
+
+                <div class="trigger"><a class="page-link" href="/about/">درباره ما</a><a class="page-link"
+                        href="/contact/">تماس با ما</a></div>
+            </nav>
+        </div>
+    </header>
+
+
+    <!-- CATEGORY & SEARCH -->
+    <div class="container-fluid mt-4">
+        <div class="row align-items-center">
+            <!-- Search Box -->
+            <div class="col-md-6 mb-3">
+                <input type="text" id="search-box" class="form-control" placeholder="دنبال چه تخفیفی هستید ..." />
+            </div>
+
+            <!-- Category Filter -->
+            <div class="col-md-6 mb-3">
+                <label for="category-filter" class="form-label">فیلتر براساس دسته‌بندی:</label>
+                <select id="category-filter" class="form-select">
+                    <option value="all">همه</option>
+                    {#
+                    {% assign categories = site.posts | map: "category" | uniq | sort %}
+                    {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                    #}
+                </select>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MAIN (POSTS) -->
+    <div id="post-list" class="container">
+        <div class="row" id="posts-container">
+            {% for post in data.posts %}
+            <div class="col-sm-6 col-md-4 col-lg-6 col-xl-2">
+                <div class="card h-100">
+                    <img src="{{ post.img_url }}" class="card-img-top" alt="{{ post.title }}">
+                    <div class="card-body" dir="rtl">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">
+                            <strong>قیمت اولیه:</strong> <del>{{ post.main_price }}</del> <strong>{{
+                                post.discounted_price }} تومان</strong> <br>
+                            <strong>درصد تخفیف: {{ post.discount_percentage }} % </strong>
+                        </p>
+                        <a href="{{ post.url }}" class="btn btn-primary">جزئیات کلاس</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <nav>
+        <ul id="pagination" class="pagination mt-4">
+            <a href="#" class="page-link">اولین</a>
+            <a href="#" class="page-link">قبلی</a>
+            {% for page in data.pages %}
+            <a href="#" class="page-link page-item {{ 'active' if page==data.current_page else '' }}">{{ page }}</a>
+            {% endfor %}
+            <a href="#" class="page-link">بعدی</a>
+            <a href="#" class="page-link">آخرین</a>
+        </ul>
+    </nav>
+
+    <!-- FOOTER -->
+    <div></div>
+
+
+    <!-- SCRIPTS -->
+
+</body>
+
+</html>
