@@ -1,7 +1,22 @@
-from flask import Flask, render_template
 import csv
 
+from flask import Flask, render_template
+
+from extensions import cors, db
+from models import Course
+
+
 app = Flask(__name__)
+app.config.from_pyfile('settings.py')
+cors.init_app(app)
+db.init_app(app)
+
+
+
+
+
+
+
 
 
 
