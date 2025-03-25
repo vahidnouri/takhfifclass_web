@@ -1,6 +1,6 @@
 
-from flask_mongoengine import Document, StringField, IntField, BooleanField, DateTimeField
-
+from flask_mongoengine import Document
+from mongoengine import StringField, IntField, BooleanField, DateTimeField
 
 
 class Course(Document):

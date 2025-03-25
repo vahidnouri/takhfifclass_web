@@ -247,13 +247,14 @@
     <!-- PAGINATION -->
     <nav>
         <ul id="pagination" class="pagination mt-4">
-            <a href="#" class="page-link">اولین</a>
-            <a href="#" class="page-link">قبلی</a>
+            <a href="/?page=1" class="page-link">اولین</a>
+            <a href="/?page={{ data.current_page-1 }}" class="page-link">قبلی</a>
             {% for page in data.pages %}
-            <a href="#" class="page-link page-item {{ 'active' if page==data.current_page else '' }}">{{ page }}</a>
+            <a href="/?page={{ page }}" class="page-link page-item {{ 'active' if page==data.current_page else '' }}">{{
+                page }}</a>
             {% endfor %}
-            <a href="#" class="page-link">بعدی</a>
-            <a href="#" class="page-link">آخرین</a>
+            <a href="/?page={{ data.current_page+1 }}" class="page-link">بعدی</a>
+            <a href="/?page={{ data.last_page }}" class="page-link">آخرین</a>
         </ul>
     </nav>
 
