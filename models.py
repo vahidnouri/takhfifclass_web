@@ -25,6 +25,7 @@ class Course(Document):
     course_url_name = StringField()
     rephrased_desc = StringField()
     is_free = BooleanField()
+    search_text = StringField()
 
     meta = dict(
         indexes=[

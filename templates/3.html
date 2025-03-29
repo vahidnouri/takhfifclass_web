@@ -202,7 +202,8 @@
         <div class="row align-items-center">
             <!-- Search Box -->
             <div class="col-md-6 mb-3">
-                <input type="text" id="search-box" class="form-control" placeholder="دنبال چه تخفیفی هستید ..." />
+                <input type="text" id="search-box" class="form-control" placeholder="دنبال چه تخفیفی هستید ..."
+                    value="{{ data.search_query }}" />
             </div>
 
             <!-- Category Filter -->
@@ -246,15 +247,19 @@
     <!-- PAGINATION -->
     <nav>
         <ul id="pagination" class="pagination mt-4">
-            <a href="/{{ data.category }}?page=1" class="page-link">اولین</a>
-            <a href="/{{ data.category }}?page={{ data.current_page-1 }}" class="page-link">قبلی</a>
+            {% if data.search_query %}
+            {% set q = "&q=" + data.search_query %}
+            {% else %}
+            {% set q = "" %}
+            {% endif %}
+            <a href="/{{ data.category }}?page=1{{ q }}" class="page-link">اولین</a>
+            <a href="/{{ data.category }}?page={{ data.current_page-1 }}{{ q }}" class="page-link">قبلی</a>
             {% for page in data.pages %}
-            <a href="/{{ data.category }}?page={{ page }}"
-                class="page-link page-item {{ 'active' if page==data.current_page else '' }}">{{
-                page }}</a>
+            <a href="/{{ data.category }}?page={{ page }}{{ q }}"
+                class=" page-link page-item {{ 'active' if page==data.current_page else '' }}">{{ page }}</a>
             {% endfor %}
-            <a href="/{{ data.category }}?page={{ data.current_page+1 }}" class="page-link">بعدی</a>
-            <a href="/{{ data.category }}?page={{ data.last_page }}" class="page-link">آخرین</a>
+            <a href="/{{ data.category }}?page={{ data.current_page+1 }}{{ q }}" class="page-link">بعدی</a>
+            <a href="/{{ data.category }}?page={{ data.last_page }}{{ q }}" class="page-link">آخرین</a>
         </ul>
     </nav>
 
@@ -273,6 +278,13 @@
                 url = '/' + encodeURIComponent(selectedCategory);
             }
             window.location.href = url;
+        });
+
+        document.getElementById('search-box').addEventListener('change', function () {
+            const query = this.value;
+            const baseUrl = window.location.origin + window.location.pathname;
+            const newUrl = `${baseUrl}?q=${encodeURIComponent(query)}`;
+            window.location.href = newUrl;
         });
     </script>
 
