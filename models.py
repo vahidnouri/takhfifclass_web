@@ -33,3 +33,13 @@ class Course(Document):
             'category', 'website'
         ]
     )
+
+
+class Category(Document):
+    name = StringField()
+    title = StringField()
+
+    meta = dict(
+        indexes=['name']
+    )
+

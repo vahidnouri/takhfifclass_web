@@ -56,3 +56,13 @@ def load2():
 
 
 
+def get_cats():
+    cats = set()
+    for i in Course.objects:
+        cats.add(i.category)
+    for i in cats:
+        Category(name=i).save()
+    return cats
+
+
+

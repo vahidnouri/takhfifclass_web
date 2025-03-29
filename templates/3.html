@@ -210,12 +210,11 @@
                 <label for="category-filter" class="form-label">فیلتر براساس دسته‌بندی:</label>
                 <select id="category-filter" class="form-select">
                     <option value="all">همه</option>
-                    {#
-                    {% assign categories = site.posts | map: "category" | uniq | sort %}
-                    {% for category in categories %}
-                    <option value="{{ category }}">{{ category }}</option>
+                    {% for category in data.categories %}
+                    <option value="{{ category.name }}" {{'selected' if category.name==data.category else '' }}>
+                        {{ category.name }}
+                    </option>
                     {% endfor %}
-                    #}
                 </select>
             </div>
         </div>
@@ -247,14 +246,15 @@
     <!-- PAGINATION -->
     <nav>
         <ul id="pagination" class="pagination mt-4">
-            <a href="/?page=1" class="page-link">اولین</a>
-            <a href="/?page={{ data.current_page-1 }}" class="page-link">قبلی</a>
+            <a href="/{{ data.category }}?page=1" class="page-link">اولین</a>
+            <a href="/{{ data.category }}?page={{ data.current_page-1 }}" class="page-link">قبلی</a>
             {% for page in data.pages %}
-            <a href="/?page={{ page }}" class="page-link page-item {{ 'active' if page==data.current_page else '' }}">{{
+            <a href="/{{ data.category }}?page={{ page }}"
+                class="page-link page-item {{ 'active' if page==data.current_page else '' }}">{{
                 page }}</a>
             {% endfor %}
-            <a href="/?page={{ data.current_page+1 }}" class="page-link">بعدی</a>
-            <a href="/?page={{ data.last_page }}" class="page-link">آخرین</a>
+            <a href="/{{ data.category }}?page={{ data.current_page+1 }}" class="page-link">بعدی</a>
+            <a href="/{{ data.category }}?page={{ data.last_page }}" class="page-link">آخرین</a>
         </ul>
     </nav>
 
@@ -263,6 +263,19 @@
 
 
     <!-- SCRIPTS -->
+    <script>
+        document.getElementById('category-filter').addEventListener('change', function () {
+            var selectedCategory = this.value;
+            var url;
+            if (selectedCategory === 'all') {
+                url = '/';
+            } else {
+                url = '/' + encodeURIComponent(selectedCategory);
+            }
+            window.location.href = url;
+        });
+    </script>
+
 
 </body>
 
