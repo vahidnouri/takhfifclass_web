@@ -53,6 +53,18 @@ def courses(category=None):
     return render_template('3.html', data=data)
 
 
+@app.get('/<website>/<course_id>/')
+@app.get('/<website>/<course_id>/<title>/')
+def get_course(website, course_id):
+    post = Course.objects(website=website, course_id=course_id).first()
+    #
+    data = {
+        'post': post,
+        'related_posts': [],
+    }
+    return render_template('4.html', data=data)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

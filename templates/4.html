@@ -173,7 +173,6 @@
     </style>
 </head>
 
-
 <body>
     <!-- HEADER -->
     <header class="site-header" role="banner">
@@ -197,99 +196,50 @@
     </header>
 
 
-    <!-- CATEGORY & SEARCH -->
-    <div class="container-fluid mt-4">
-        <div class="row align-items-center">
-            <!-- Search Box -->
-            <div class="col-md-6 mb-3">
-                <input type="text" id="search-box" class="form-control" placeholder="دنبال چه تخفیفی هستید ..."
-                    value="{{ data.search_query }}" />
-            </div>
-
-            <!-- Category Filter -->
-            <div class="col-md-6 mb-3">
-                <label for="category-filter" class="form-label">فیلتر براساس دسته‌بندی:</label>
-                <select id="category-filter" class="form-select">
-                    <option value="all">همه</option>
-                    {% for category in data.categories %}
-                    <option value="{{ category.name }}" {{'selected' if category.name==data.category else '' }}>
-                        {{ category.name }}
-                    </option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- MAIN (POSTS) -->
-    <div id="post-list" class="container">
-        <div class="row" id="posts-container">
-            {% for post in data.posts %}
-            <div class="col-sm-6 col-md-4 col-lg-6 col-xl-2">
-                <div class="card h-100">
-                    <img src="{{ post.img_url }}" class="card-img-top" alt="{{ post.title }}">
-                    <div class="card-body" dir="rtl">
-                        <h5 class="card-title">{{ post.title }}</h5>
-                        <p class="card-text">
-                            <strong>قیمت اولیه:</strong> <del>{{ post.main_price }}</del> <strong>{{
-                                post.discounted_price }} تومان</strong> <br>
-                            <strong>درصد تخفیف: {{ post.discount_percentage }} % </strong>
-                        </p>
-                        <a href="/{{ post.website }}/{{ post.course_id }}/" class="btn btn-primary">جزئیات کلاس</a>
-                    </div>
+    <main class="page-content" aria-label="Content">
+        <div class="wrapper">
+            <h1 class="post-title p-name" itemprop="name headline" dir="rtl">{{ data.post.title }}</h1>
+            <div class="post-content e-content" itemprop="articleBody" dir="rtl" style="text-align:justify">
+                <p>آخرین بروز رسانی:</p>
+                <p>{{ data.post.shamsi_date }}</p>
+                <p><img src="{{ data.post.img_url }}" alt="Course Image"></p>
+                <p><strong>{{ data.post.title }}</strong></p>
+                <h3 id="جزئیات-آموزش">جزئیات آموزش</h3>
+                {{ data.post.description }}
+                <hr>
+                <p><strong>درصد تخفیف %{{ data.post.discount_percentage }}</strong></p>
+                {% if data.post.is_free %}
+                <p>رایگان</p>
+                {% else %}
+                <p>قیمت دوره <del>{{ data.post.main_price }}</del> <strong>{{ data.post.discounted_price }}
+                        تومان</strong></p>
+                {% endif %}
+                <div style="text-align: center;"> <a href="{{ data.post.affiliate_link }}" target="_blank">لینک کلاس</a>
                 </div>
             </div>
-            {% endfor %}
+
+            <!-- Related Posts Section -->
+            <div class="related-posts" dir="rtl" style="margin-top: 20px; text-align: center;">
+                <h3>پست‌های مرتبط</h3>
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    {% for post in data.related_posts %}
+                    <div style="width: 30%; min-width: 200px; text-align: center;">
+                        <a href="{{ post.url }}">
+                            <img src="{{ post.img_url }}" alt="{{ post.title }}"
+                                style="width: 100%; border-radius: 8px;">
+                        </a>
+                        <h4 style="margin-top: 10px;"><a href="{{ post.url }}">{{ post.title }}</a></h4>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
         </div>
-    </div>
-
-
-    <!-- PAGINATION -->
-    <nav>
-        <ul id="pagination" class="pagination mt-4">
-            {% if data.search_query %}
-            {% set q = "&q=" + data.search_query %}
-            {% else %}
-            {% set q = "" %}
-            {% endif %}
-            <a href="/{{ data.category }}?page=1{{ q }}" class="page-link">اولین</a>
-            <a href="/{{ data.category }}?page={{ data.current_page-1 }}{{ q }}" class="page-link">قبلی</a>
-            {% for page in data.pages %}
-            <a href="/{{ data.category }}?page={{ page }}{{ q }}"
-                class=" page-link page-item {{ 'active' if page==data.current_page else '' }}">{{ page }}</a>
-            {% endfor %}
-            <a href="/{{ data.category }}?page={{ data.current_page+1 }}{{ q }}" class="page-link">بعدی</a>
-            <a href="/{{ data.category }}?page={{ data.last_page }}{{ q }}" class="page-link">آخرین</a>
-        </ul>
-    </nav>
+    </main>
 
 
     <!-- FOOTER -->
     <div></div>
-
-
-    <!-- SCRIPTS -->
-    <script>
-        document.getElementById('category-filter').addEventListener('change', function () {
-            var selectedCategory = this.value;
-            var url;
-            if (selectedCategory === 'all') {
-                url = '/';
-            } else {
-                url = '/' + encodeURIComponent(selectedCategory);
-            }
-            window.location.href = url;
-        });
-
-        document.getElementById('search-box').addEventListener('change', function () {
-            const query = this.value;
-            const baseUrl = window.location.origin + window.location.pathname;
-            const newUrl = `${baseUrl}?q=${encodeURIComponent(query)}`;
-            window.location.href = newUrl;
-        });
-    </script>
-
 
 </body>
 
