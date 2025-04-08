@@ -66,5 +66,10 @@ def get_course(website, course_id):
 
 
 
+@app.get('/home/')
+def home():
+    return render_template('example.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
