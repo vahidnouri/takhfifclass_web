@@ -1,0 +1,39 @@
+{% extends 'public/base.html'%}
+{% from "macro/card_details.html" import genres %}
+{% from "macro/pagination.html" import pagination %}
+{% from "macro/card_details.html" import director %}
+
+<!--  -->
+
+{% block head %}
+<title>سینمای {{ data.country.name }} | یک فیلم، یک زندگی</title>
+<meta name="description" content="" />
+<meta name="keywords" content="{{ data.keywords| join(',')}}" />
+{% endblock %}
+
+<!--  -->
+
+{% block content %}
+<div class="ui container" style="margin-top: 7em; margin-bottom: 2em;">
+    <div class="ui link stackable centered four cards">
+        {% for i in data.posts %}
+        <div class="ui raised link card">
+            <a class="image" href="/m/{{ i._id }}" style="position: relative;">
+                <div class="ui placeholder" style="opacity: .25">
+                    <div class="square image"></div>
+                </div>
+                <img src="/media/{{ i.cover }}/" alt="i.title_en" style="top:0; position:absolute;">
+                <!-- <h1 class="ui header title_fa">{{ i.title_fa }}</h1> -->
+            </a>
+            <div class="content">
+                <a href="/m/{{ i._id }}"><span class="ui header" style="color:#4e473d; font-weight: 400;">{{ i.title_fa }}</span></a>
+                {{ genres(i, data.cache) }}
+            </div>
+            {{ director(i, data.cache) }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="ui hidden divider"></div>
+    {{ pagination(data.page, data.pages, data.last, 'c/'+(data.country._id|string)) }}
+</div>
+{% endblock %}

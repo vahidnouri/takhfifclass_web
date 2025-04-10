@@ -1,0 +1,186 @@
+{% extends 'public/base.html' %}
+{% from "macro/card_details.html" import rating %}
+{% from "macro/card_details.html" import genres %}
+{% from "macro/card_details.html" import director %}
+
+<!--  -->
+
+{% block head %}
+<meta name="description" content="" />
+<meta name="keywords" content="" />
+<meta name="author" content="" />
+<title>یک فیلم، یک زندگی</title>
+{% endblock head %}
+
+<!--  -->
+
+{% block content %}
+
+<div class="ui dark inverted vertical masthead center aligned segment" style="margin-bottom: 4em;">
+    <div class="ui container">
+        <div class="ui large secondary inverted pointing menu">
+            <div class="ui right dropdown toc item">
+                <i class="sidebar icon"></i>
+                <div class="vertical light menu">
+                    <a class="active selected item righted" href="/">خانه</a>
+                    <!--  -->
+                    {% for k,v in data.menu.items() if v != None %}
+                    <!--  -->
+                    {% if v|is_str %}
+                    <a class="item righted" href="/{{ k }}">{{ v }}</a>
+                    <!--  -->
+                    {% else %}
+                    <!--  -->
+                    <div class="right dropdown item">
+                        {{ v[0] }}<i class="left caret icon" style="margin:0 .25em 0 0!important"></i>
+                        <div class="light compact menu left transition">
+                            {% for k_,v_ in v[1].items() %}
+                            <a class="item righted" href="/{{ k }}/{{ k_ }}">{{ v_ }}</a>
+                            <!--  -->
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!--  -->
+                    {% endif %}
+                    <!--  -->
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- --- -->
+            <!-- RIGHT MENU -->
+            <div class="right menu">
+                <a class="active item" href="/">
+                    <i class="film icon"></i>&nbsp;
+                    <span style="font-weight: bold;">
+                        یک فیلم، یک زندگی
+                    </span>
+                </a>
+            <!-- </div> -->
+            <!--  -->
+            {% for k,v in data.menu.items() if v != None %}
+            <!--  -->
+            {% if v|is_str %}
+            <a class="item" href="/{{ k }}">{{ v }}</a>
+            <!--  -->
+            {% else %}
+            <!--  -->
+            <div class="ui dropdown item">
+                <a class="{{'active' if data.page == k else ''}}" href="/{{ k }}">{{ v[0] }}</a>
+                <div class="light menu" style="right:0 !important;">
+                    {% for k_,v_ in v[1].items() %}
+                    <a class="item righted" href="/{{ k }}/{{ k_ }}">{{ v_ }}</a>
+                    <!--  -->
+                    {% endfor %}
+                </div>
+            </div>
+            </div>
+            <!--  -->
+            {% endif %}
+            <!--  -->
+            {% endfor %}
+            <!--  -->
+            <!-- LEFT MENU -->
+            <div class="left menu">
+                <div class="left item">
+                    <div class="ui category search">
+                        <div class="ui inverted transparent left icon input">
+                            <input class="prompt" type="text" placeholder="جستجو ..." style="text-align:right;">
+                            <i class="search link icon"></i>
+                        </div>
+                        <div class="results"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--  -->
+    {% set name_fa = data.obj.name_fa %}
+    {% set name_en = data.obj.name_en %}
+    {% set name = name_fa + ' - ' + name_en if name_fa and name_en else name_fa + name_en %}
+    
+    <div class="ui container" style="padding:2em 0 1em 0;">
+        <h1 class="ui inverted header" style="font-size:large;">
+            نتایج جستجوی «
+            {{ name }}
+            »
+        </h1>
+    </div>
+</div>
+<!--  -->
+<div class="">
+    <div class="ui container">
+
+        {% if data.reviews.count %}
+        <h4 class="ui horizontal divider black header">
+            &nbsp; مرورها
+            {% if data.reviews.count > 8 %}
+            <a href="/f/reviews/{{ data.model }}/{{ data.obj._id }}/">
+                <span class="ui grey text">
+                    (نمایش همه {{ data.reviews.count | persian }} مرور)
+                </span>
+            </a>
+            {% endif %}
+            &nbsp;
+        </h4>
+        <div class="ui link stackable centered four cards">
+            {% for i in data.reviews.posts %}
+            <div class="ui raised link card">
+                <a class="image" href="/r/{{ i._id }}" style="position: relative;">
+                    <div class="ui placeholder" style="opacity: .25">
+                        <div class="square image"></div>
+                    </div>
+                    <img src="/media/{{ i.cover }}/" alt="{{ i.title_en }}" style="top:0; position:absolute;">
+                    <div class="ui top left attached label" style="opacity: .85; padding:4px;">
+                        {{ rating(i.rating)}}
+                    </div>
+                    <h1 class="ui header title_en">{{ i.title_en }}</h1>
+                </a>
+                <div class="content">
+                    <a href="/r/{{ i._id }}" class="ui header" style="color:#4e473d">{{ i.title_fa }}</a>
+                    {{ genres(i, data.cache) }}
+                </div>
+                {{ director(i, data.cache) }}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="ui hidden divider"></div>
+        {% endif %}
+        
+        <!--  -->
+        
+        {% if data.movies.count %}
+        <h4 class="ui horizontal divider black header">
+            &nbsp; سینمای کشورها
+            {% if data.movies.count > 8 %}
+            <a href="/f/movies/{{ data.model }}/{{ data.obj._id }}/">
+                <span class="ui grey text">
+                    (نمایش همه {{ data.movies.count | persian }} مورد)
+                </span>
+            </a>
+            {% endif %}
+            &nbsp;
+        </h4>
+        <div class="ui link stackable centered four cards">
+            {% for i in data.movies.posts %}
+            <div class="ui raised link card">
+                <a class="image" href="/m/{{ i._id }}" style="position: relative;">
+                    <div class="ui placeholder" style="opacity: .25">
+                        <div class="square image"></div>
+                    </div>
+                    <img src="/media/{{ i.cover }}/" alt="i.title_en" style="top:0; position:absolute;">
+                    <h1 class="ui header title_en">{{ i.title_en }}</h1>
+                </a>
+                <div class="content">
+                    <a href="/m/{{ i._id }}"><span class="ui header" style="color:#4e473d">{{ i.title_fa }}</span></a>
+                    {{ genres(i, data.cache) }}
+                </div>
+                {{ director(i, data.cache) }}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="ui hidden divider"></div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,113 @@
+{% extends 'public/base.html' %}
+{% from "macro/card_details.html" import details %}
+{% from "macro/card_details.html" import tags %}
+{% from "macro/card_details.html" import keywords %}
+
+<!--  -->
+
+{% block head %}
+<meta name="description" content="{{ data.post.summary }}" />
+<meta name="keywords" content="{{ keywords(data.post, data.cache) }}" />
+<meta name="author" content="{{ data.cache('Author', data.post.author|string).fa }}" />
+<title>{{ data.post.title_fa }} | یک فیلم، یک زندگی</title>
+{% endblock head %}
+
+<!--  -->
+
+{% block content %}
+
+<div class="" style="padding-top: 10em; padding-bottom: 6em;">
+    <div class="ui container">
+        <div class="ui basic segment">
+            <div class="ui two column stackable grid">
+                <div class="row">
+                    <div class="column">
+
+                        <h1 class="ui header" style="font-size:large;">
+                            {{ data.post.title }}
+                        </h1>
+                        <p>
+                            <span class="ui large text">{{ data.post.title_en }}</span>
+                            <br>
+                            <span class="ui header">{{ data.post.title_fa }}</span>
+                        </p>
+                        <br>
+                        <p class="md">
+                            در سال
+                            <b>
+                                {{ data.post.year | persian }}
+                            </b>
+                            {{ details(data.post.director, data.cache, 'director', 'به کارگردانی') }}
+                            <!--  -->
+                            {{ details(data.post.genres, data.cache, 'genre', 'در ژانر') }}
+                            <!--  -->
+                            {{ details(data.post.language, data.cache, 'language', 'به زبان') }}
+                            <!--  -->
+                            و به مدت
+                            <b>{{ data.post.duration | persian }}</b>
+                            <!--  -->
+                            دقیقه ساخته شد.
+
+                            <br>
+                            <!--  -->
+                            {% if data.post.author_id %}
+                            <!--  -->
+                            نوشته شده توسط <a href="/{{ data.lang }}/abouts/{{ data.post.author_id }}">{{ data.post.author }}</a>
+                            <!--  -->
+                            {% else %} نوشته شده توسط
+                            <b>{{ data.cache('Author', data.post.author|string).fa }}</b>
+                            <!--  -->
+                            {% endif %} در
+                            <b>{{ data.date_fa | persian }}</b>
+                        </p>
+                        <div class="ui divider"></div>
+                        <div class="ui basic segment">
+                            <div class="md" style="margin-top: 1em; font-size:larger; line-height: 1.8;">
+                                {{ data.post.body | safe }}
+                            </div>
+                        </div>
+                        {{ tags(data.post, data.cache) }}
+                        <br>
+                        <!--  -->
+                        {% if data.post.stars|length() > 0 %}
+                        <div>
+                            <h4>
+                                با هنرمندی:
+                            </h4>
+                            <div class="ui horizontal list" dir="ltr" style="text-align:right;">
+                                {{data.post}} {% for i in data.post.stars %}
+                                <div class="item">
+                                    <a href="/cast/{{ i.id }}">
+                                        <img class="ui tiny avatar image" src="/media/{{ i.cover }}/" style="margin:.5em;">
+                                        <center>
+                                            <span class="ui orange text" style="text-align: center; ">
+                                            {{ i.name_fa }}
+                                        </span>
+                                        </center>
+                                    </a>
+                                </div>
+                                <!--  -->
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                    <div class="column">
+                        <img class="ui rounded image" src="/media/{{ data.post.cover }}/" style="width:100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('.ui.rating')
+            .rating({
+                interactive: true
+            });
+    })
+</script>
+{% endblock content %}

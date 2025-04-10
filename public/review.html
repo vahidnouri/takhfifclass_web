@@ -1,0 +1,83 @@
+{% extends 'public/base.html' %}
+{% from "macro/card_details.html" import details %}
+{% from "macro/card_details.html" import tags %}
+{% from "macro/card_details.html" import keywords %}
+{% from "macro/card_details.html" import rating %}
+
+<!--  -->
+
+{% block head %}
+<meta name="description" content="{{ data.post.summary }}" />
+<meta name="keywords" content="{{ keywords(data.post, data.cache) }}" />
+<meta name="author" content="{{ data.cache('Author', data.post.author|string).fa }}" />
+<title>{{ data.post.title }} | یک فیلم، یک زندگی</title>
+<style>
+    p {
+        line-height: 1.8;
+        font-size: larger;
+    }
+    em.ui.text {
+        font-weight: bold;
+    }
+</style>
+{% endblock head %}
+
+<!--  -->
+
+{% block content %}
+
+<div class="" style="padding-top: 10em; padding-bottom: 6em;">
+    <div class="ui justified text container">
+        <h1 class="ui header" style="font-size:large;">{{ data.post.title }}</h1>
+        <p>
+            <em class="ui text">
+                {{ data.post.title_en }} &nbsp;
+                {% if data.post.title_2 %}
+                ({{ data.post.title_2 }})
+                {% endif %}
+            </em>
+            <br>
+            <em class="ui text">{{ data.post.title_fa }}</em>
+            {{ rating(data.post.rating) }}
+            (
+                {{ data.post.rating | persian | replace(".", "٫")}}
+                از
+                ۴
+            )
+        </p>
+        <p class="md" style="font-size:smaller;">
+            در سال
+            <b>
+                {{ data.post.year | persian }}
+            </b>
+            {{ details(data.post.director, data.cache, 'director', 'به کارگردانی') }}
+            <!--  -->
+            {{ details(data.post.country, data.cache, 'country', 'در کشور') }}
+            <!--  -->
+            {{ details(data.post.genres, data.cache, 'genre', 'در ژانر') }}
+            <!--  -->
+            {{ details(data.post.language, data.cache, 'language', 'به زبان') }}
+            <!--  -->
+            و به مدت
+            <b>{{ data.post.duration | persian }}</b>
+            <!--  -->
+            دقیقه ساخته شد.
+
+            <div class="ui orange big rating" data-icon="star" data-rating="{{ data.post.rating }}" data-max-rating="4" dir="ltr"></div>
+            نوشته شده توسط
+            <b>{{ data.cache('Author', data.post.author|string).fa }}</b>
+            <!--  -->
+در
+            <b>{{ data.date_fa | persian }}</b>
+        </p>
+        <img class="ui rounded image" src="/media/{{ data.post.cover }}" alt="{{ data.post.title_en}}" style="width:100%;">
+        <div class="md" style="margin-top: 1em;">
+            <p>
+                {{ data.post.body | safe }}
+            </p>
+        </div>
+        {{ tags(data.post, data.cache) }}
+    </div>
+</div>
+
+{% endblock content %}

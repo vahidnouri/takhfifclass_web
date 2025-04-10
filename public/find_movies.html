@@ -1,9 +1,12 @@
-{% extends 'base.html' %}
+{% extends 'public/base.html'%}
+{% from "macro/card_details.html" import genres %}
+{% from "macro/card_details.html" import director %}
+{% from "macro/pagination.html" import pagination %}
 
 <!--  -->
 
 {% block head %}
-<title>تخفیف کلاس</title>
+<title>مرورها | یک فیلم، یک زندگی</title>
 <meta name="description" content="" />
 <meta name="keywords" content="{{ data.keywords| join(',')}}" />
 {% endblock %}
@@ -13,7 +16,6 @@
 {% block content %}
 <div class="ui dark inverted vertical masthead center aligned segment" style="margin-bottom: 4em;">
     <div class="ui container">
-        {#
         <div class="ui large secondary inverted pointing menu">
             <div class="ui right dropdown toc item">
                 <i class="sidebar icon"></i>
@@ -45,25 +47,35 @@
             <!-- --- -->
             <!-- RIGHT MENU -->
             <div class="right menu">
-                <div class="ui dropdown icon item">
-                    <i class="sidebar icon"></i>
-                    <div class="semi-dark menu" style="right: 0; left: auto;">
-                        {% for k,v in data.menu.items() if v != None %}
-                        <a class="item righted" href="/{{ k }}"
-                            style="text-align:right !important; color:#fff !important;">
-                            {{ v }}
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-
                 <a class="active item" href="/">
                     <i class="film icon"></i>&nbsp;
                     <span style="font-weight: bold;">
                         یک فیلم، یک زندگی
                     </span>
                 </a>
+            <!-- </div> -->
+            <!--  -->
+            {% for k,v in data.menu.items() if v != None %}
+            <!--  -->
+            {% if v|is_str %}
+            <a class="item" href="/{{ k }}">{{ v }}</a>
+            <!--  -->
+            {% else %}
+            <!--  -->
+            <div class="ui dropdown item">
+                <a class="{{'active' if data.page == k else ''}}" href="/{{ k }}">{{ v[0] }}</a>
+                <div class="light menu" style="right:0 !important;">
+                    {% for k_,v_ in v[1].items() %}
+                    <a class="item righted" href="/{{ k }}/{{ k_ }}">{{ v_ }}</a>
+                    <!--  -->
+                    {% endfor %}
+                </div>
             </div>
+            </div>
+            <!--  -->
+            {% endif %}
+            <!--  -->
+            {% endfor %}
             <!--  -->
             <!-- LEFT MENU -->
             <div class="left menu">
@@ -76,70 +88,45 @@
                         <div class="results"></div>
                     </div>
                 </div>
-                <!-- 
-                <a class="icon item" onclick="$('#user_form').modal({dimmerSettings: { opacity: 0 }}).modal('show');">
-                    <i class="user icon"></i>
-                </a> 
-                -->
             </div>
         </div>
-        #}
     </div>
     <!--  -->
+    {% set name_fa = data.obj.name_fa %}
+    {% set name_en = data.obj.name_en %}
+    {% set name = name_fa + ' - ' + name_en if name_fa and name_en else name_fa + name_en %}
+    
     <div class="ui container" style="padding:2em 0 1em 0;">
-        <div class="ui stackable centered four cards">
-            {% for i in data.posts[1:9] %}
-            <div class="ui raised link inverted semi-dark grey card">
-                <a class="image" href="/r/{{ i._id }}">
-                    <img src="{{ i.img_url }}" alt="{{ i.title }}">
-                </a>
-                <div class="right aligned content">
-                    <h1 class="ui small header">{{ i.title }}</h1>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+        <h1 class="ui inverted header" style="font-size:large;">
+            نتایج جستجوی «
+            {{ name }}
+            » / سینمای کشورها
+        </h1>
     </div>
 </div>
+
 <!--  -->
-<!-- REVIEWS -->
-<div class="ui container">
-    {#
-    <h4 class="ui horizontal divider black header">
-        &nbsp; تازه‌ترین مرورها
-        <a href="/reviews">
-            <span class="ui grey text">
-                (نمایش همه {{ data.recent.count | persian }} مرور)
-            </span>
-        </a>
-        &nbsp;
-    </h4>
-    #}
+
+<div class="ui container" style="margin-bottom: 2em;">
     <div class="ui link stackable centered four cards">
         {% for i in data.posts %}
         <div class="ui raised link card">
-            <a class="image" href="/{{ i.website }}/{{ i.course_id }}/">
-                <img src="{{ i.img_url }}" alt="{{ i.title }}">
+            <a class="image" href="/m/{{ i._id }}" style="position: relative;">
+                <div class="ui placeholder" style="opacity: .25">
+                    <div class="square image"></div>
+                </div>
+                <img src="/media/{{ i.cover }}/" alt="i.title_en" style="top:0; position:absolute;">
+                <h1 class="ui header title_en">{{ i.title_en }}</h1>
             </a>
             <div class="content">
-                <h2 class="ui small header">{{ i.title }}</h2>
-                <!-- <a href="/r/{{ i._id }}" class="ui black header title_en">{{ i.title }}</a> -->
+                <a href="/m/{{ i._id }}"><span class="ui header" style="color:#4e473d">{{ i.title_fa }}</span></a>
+                {{ genres(i, data.cache) }}
             </div>
-            <!-- website -->
+            {{ director(i, data.cache) }}
         </div>
         {% endfor %}
     </div>
+    <div class="ui hidden divider"></div>
+    {{ pagination(data.page, data.pages, data.last, 'f/reviews/'+data.model+'/'+data._id) }}
 </div>
-<!--  -->
-<script>
-    $(".masthead").visibility({
-        once: false,
-        onBottomPassed: function () {
-            $(".fixed.menu").transition("fade in");
-        },
-        onBottomPassedReverse: function () {
-            $(".fixed.menu").transition("fade out");
-        }
-    });
-</script>
 {% endblock %}

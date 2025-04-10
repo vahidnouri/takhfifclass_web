@@ -21,7 +21,7 @@ db.init_app(app)
 @app.get('/<category>/')
 def courses(category=None):
     page = int(request.args.get('page', 1))
-    page_size = int(request.args.get('page_size', 12))
+    page_size = int(request.args.get('page_size', 20))
     search_query = request.args.get('q', '')
     #
     filters = {'is_free': False}
@@ -50,7 +50,7 @@ def courses(category=None):
         'category': category or '',
         'search_query': search_query,
     }
-    return render_template('3.html', data=data)
+    return render_template('home.html', data=data)
 
 
 @app.get('/<website>/<course_id>/')
