@@ -2,7 +2,9 @@ import csv
 from datetime import datetime
 from math import ceil
 
-from flask import Flask, render_template, request
+from khayyam import JalaliDate
+from persian import convert_en_numbers
+from flask import Flask, render_template, request, send_from_directory
 
 from extensions import cors, db
 from models import Course, Category
@@ -14,6 +16,16 @@ cors.init_app(app)
 db.init_app(app)
 
 
+app.jinja_env.filters.update(
+    persian=convert_en_numbers,
+    persian_price=lambda x: convert_en_numbers(f'{x:,}'),
+    persian_date=lambda x: convert_en_numbers(JalaliDate(x).strftime('%d %B %Y')),
+    persian_site=lambda x: {'Limoonad': 'لیموناد'}.get(x, x),
+)
+
+# @app.get('/favicon.ico')
+# def favicon():
+#     return send_from_directory('static', 'favicon.png', mimetype='image/vnd.microsoft.icon')
 
 
 
@@ -49,6 +61,7 @@ def courses(category=None):
         'categories': categories,
         'category': category or '',
         'search_query': search_query,
+        'page': 'home',
     }
     return render_template('home.html', data=data)
 

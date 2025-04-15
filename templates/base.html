@@ -5,6 +5,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.js"></script>
+
+    <link rel="icon" href="/static/favicon.ico" />
+
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/@v32.101/Vazirmatn-font-face.css" rel="stylesheet"
         type="text/css" />
     <style>
@@ -95,11 +98,12 @@
         }
 
         .semi-dark {
-            background-color: #555 !important;
+            background-color: #f8ff9c !important;
+            /* background-color: #8bf7f2 !important; */
         }
 
         .light {
-            background-color: #ddd !important;
+            background-color: #dbfaf9 !important;
         }
 
         .black {
@@ -113,7 +117,7 @@
 </head>
 
 <body class="light">
-    <div class="ui inverted large top fixed borderless dark menu {{'hidden' if data.page in ['home','f'] else ''}}">
+    <div class="ui inverted large top fixed borderless teal menu {{'hidden' if data.page in ['home','f'] else ''}}">
         <div class="ui container">
             <!-- RIGHT MENU -->
             <div class="right menu">
@@ -131,7 +135,8 @@
                 </div>
                 #}
                 <a class="item" href="/home/">
-                    <i class="film icon"></i>&nbsp;
+                    <img class="ui mini image" src="/static/logo.png">
+                    <!-- <i class="percent icon"></i>&nbsp; -->
                     <span style="font-weight: bold;">
                         تخفیف کلاس
                     </span>
@@ -146,7 +151,7 @@
     {% block content %}{% endblock %}
 
     <!-- Footer -->
-    <div class="ui semi-dark inverted vertical footer segment" dir="ltr">
+    <div class="ui inverted vertical teal footer segment" dir="ltr">
         <div class="ui container">
             <center>
                 <p class="ui text" dir="rtl" style="color:white; text-align:center; margin-bottom: .5em;">

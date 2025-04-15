@@ -14,3 +14,4 @@ mongoengine==0.29.1
 pymongo==4.11.3
 Werkzeug==2.2.2
 WTForms==3.2.1
+persian

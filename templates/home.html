@@ -11,10 +11,10 @@
 <!--  -->
 
 {% block content %}
-<div class="ui dark inverted vertical masthead center aligned segment" style="margin-bottom: 4em;">
+<div class="ui teal inverted vertical masthead center aligned segment" style="margin-bottom: 4em;">
     <div class="ui container">
-        {#
         <div class="ui large secondary inverted pointing menu">
+            {#
             <div class="ui right dropdown toc item">
                 <i class="sidebar icon"></i>
                 <div class="vertical light menu">
@@ -42,30 +42,21 @@
                     {% endfor %}
                 </div>
             </div>
+            #}
             <!-- --- -->
             <!-- RIGHT MENU -->
             <div class="right menu">
-                <div class="ui dropdown icon item">
-                    <i class="sidebar icon"></i>
-                    <div class="semi-dark menu" style="right: 0; left: auto;">
-                        {% for k,v in data.menu.items() if v != None %}
-                        <a class="item righted" href="/{{ k }}"
-                            style="text-align:right !important; color:#fff !important;">
-                            {{ v }}
-                        </a>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <a class="active item" href="/">
-                    <i class="film icon"></i>&nbsp;
+                <a class="item" href="/home/">
+                    <img class="ui mini image" src="/static/logo.png">
+                    <!-- <i class="percent icon"></i>&nbsp; -->
                     <span style="font-weight: bold;">
-                        یک فیلم، یک زندگی
+                        تخفیف کلاس
                     </span>
                 </a>
             </div>
             <!--  -->
             <!-- LEFT MENU -->
+            {#
             <div class="left menu">
                 <div class="left item">
                     <div class="ui category search">
@@ -82,19 +73,44 @@
                 </a> 
                 -->
             </div>
+            #}
         </div>
-        #}
     </div>
     <!--  -->
     <div class="ui container" style="padding:2em 0 1em 0;">
         <div class="ui stackable centered four cards">
             {% for i in data.posts[1:9] %}
-            <div class="ui raised link inverted semi-dark grey card">
-                <a class="image" href="/r/{{ i._id }}">
+            <div class="ui raised link inverted_ semi-dark teal card">
+                <a class="image" href="/{{ i.website }}/{{ i.course_id }}/">
                     <img src="{{ i.img_url }}" alt="{{ i.title }}">
                 </a>
-                <div class="right aligned content">
-                    <h1 class="ui small header">{{ i.title }}</h1>
+                <div class="content">
+                    <div class="header">{{ i.title }}</div>
+                    <div class="meta">
+                        <a>{{ i.website | persian_site }}</a>
+                    </div>
+                    <div class="description">
+                        قیمت
+                        &nbsp;
+                        <del>
+                            {{ i.main_price | persian_price}}
+                        </del>
+                        &nbsp;
+                        <strong>
+                            {{ i.discounted_price | persian_price}}
+                        </strong>
+                        &nbsp;
+                        تومان
+                    </div>
+                </div>
+                <div class="extra content">
+                    <span class="left floated">
+                        {{ i.datetime | persian_date }}
+                    </span>
+                    <span>
+                        <i class="percentage icon"></i>
+                        {{ i.discount_percentage | persian }}
+                    </span>
                 </div>
             </div>
             {% endfor %}
@@ -104,17 +120,6 @@
 <!--  -->
 <!-- REVIEWS -->
 <div class="ui container">
-    {#
-    <h4 class="ui horizontal divider black header">
-        &nbsp; تازه‌ترین مرورها
-        <a href="/reviews">
-            <span class="ui grey text">
-                (نمایش همه {{ data.recent.count | persian }} مرور)
-            </span>
-        </a>
-        &nbsp;
-    </h4>
-    #}
     <div class="ui link stackable centered four cards">
         {% for i in data.posts %}
         <div class="ui raised link card">
@@ -122,10 +127,33 @@
                 <img src="{{ i.img_url }}" alt="{{ i.title }}">
             </a>
             <div class="content">
-                <h2 class="ui small header">{{ i.title }}</h2>
-                <!-- <a href="/r/{{ i._id }}" class="ui black header title_en">{{ i.title }}</a> -->
+                <div class="header">{{ i.title }}</div>
+                <div class="meta">
+                    <a>{{ i.website | persian_site }}</a>
+                </div>
+                <div class="description">
+                    قیمت
+                    &nbsp;
+                    <del>
+                        {{ i.main_price | persian_price}}
+                    </del>
+                    &nbsp;
+                    <strong>
+                        {{ i.discounted_price | persian_price}}
+                    </strong>
+                    &nbsp;
+                    تومان
+                </div>
             </div>
-            <!-- website -->
+            <div class="extra content">
+                <span class="left floated">
+                    {{ i.datetime | persian_date }}
+                </span>
+                <span>
+                    <i class="percentage icon"></i>
+                    {{ i.discount_percentage | persian }}
+                </span>
+            </div>
         </div>
         {% endfor %}
     </div>
