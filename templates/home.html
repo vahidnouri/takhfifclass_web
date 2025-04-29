@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% from "macro/pagination.html" import pagination %}
 
 <!--  -->
 
@@ -156,6 +157,10 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+    <!--  -->
+    <div style="padding: 2em 0 2em 0;">
+        {{ pagination(data.current_page, data.pages, data.last_page, data.category or '/') }}
     </div>
 </div>
 <!--  -->

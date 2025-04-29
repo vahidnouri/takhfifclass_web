@@ -1,4 +1,5 @@
 import csv
+import json
 from datetime import datetime
 from math import ceil
 
@@ -49,9 +50,10 @@ def courses(category=None):
     pages_count = ceil(count / page_size)
     previous_pages = list(range(1, page))
     next_pages = list(range(page, pages_count+1))
-    pages = previous_pages[-5:] + next_pages[:5]
+    pages = previous_pages[-2:] + next_pages[:3]
     #
     categories = Category.objects
+    category_menu = {i.title: i.title for i in categories}
     #
     data = {
         'posts': posts,
@@ -62,6 +64,7 @@ def courses(category=None):
         'category': category or '',
         'search_query': search_query,
         'page': 'home',
+        'menu': category_menu,
     }
     return render_template('home.html', data=data)
 
@@ -82,6 +85,16 @@ def get_course(website, course_id):
 @app.get('/home/')
 def home():
     return render_template('example.html')
+
+
+@app.get('/api/s/<query>/')
+def search(query):
+    result = [
+        {},
+        {},
+        {},
+    ]
+    return json.dumps(result)
 
 
 if __name__ == '__main__':

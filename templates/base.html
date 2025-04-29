@@ -102,6 +102,10 @@
             /* background-color: #8bf7f2 !important; */
         }
 
+        .teal_menu {
+            background-color: #00b5ad !important;
+        }
+
         .light {
             background-color: #dbfaf9 !important;
         }
@@ -121,10 +125,10 @@
         <div class="ui container">
             <!-- RIGHT MENU -->
             <div class="right menu">
-                {#
+
                 <div class="ui dropdown icon item">
                     <i class="sidebar icon"></i>
-                    <div class="semi-dark menu" style="right: 0; left: auto;">
+                    <div class="teal_menu menu" style="right: 0; left: auto;">
                         {% for k,v in data.menu.items() if v != None %}
                         <a class="{{'active selected' if data.page_name == k else ''}} item" href="/{{ k }}"
                             style="text-align:right; color:#fff !important;">
@@ -133,7 +137,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                #}
+
                 <a class="item" href="/home/">
                     <img class="ui mini image" src="/static/logo.png">
                     <!-- <i class="percent icon"></i>&nbsp; -->
@@ -144,6 +148,17 @@
             </div>
             <!-- CENTER MENU -->
             <!-- LEFT MENU -->
+            <div class="left menu">
+                <div class="item">
+                    <div class="ui category search">
+                        <div class="ui inverted transparent left icon input">
+                            <input class="prompt" type="text" placeholder="جستجو ..." style="text-align:right;">
+                            <i class="search link icon"></i>
+                        </div>
+                        <div class="results"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     </div>
@@ -211,6 +226,17 @@
                 $(".fixed.menu").transition("fade out");
             }
         });
+
+        $('.ui.search')
+            .search({
+                searchOnFocus: true,
+                showNoResults: false,
+                minCharacters: 3,
+                // type: 'category',
+                apiSettings: {
+                    url: '/api/s/{query}',
+                }
+            });
     </script>
 </body>
 
