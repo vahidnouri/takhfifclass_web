@@ -37,8 +37,8 @@ class Course(Document):
 
 
 class Category(Document):
-    name = StringField()
-    title = StringField()
+    name = StringField()    # English name of category
+    title = StringField()   # Persian name of category
 
     meta = dict(
         indexes=['name']
