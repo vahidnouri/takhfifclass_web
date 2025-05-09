@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>نتایج جستجو برای "{{ query }}"</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.2/dist/semantic.min.css">
+  <style>
+    body { direction: rtl; padding: 2em; }
+  </style>
+</head>
+<body>
+
+  <div class="ui container">
+    <h2 class="ui header">نتایج جستجو برای "{{ query }}"</h2>
+      <div style="margin-top: 2em;">
+          <a href="/" class="ui button">بازگشت به صفحه اصلی</a>
+      </div>
+    {% if courses %}
+      <div class="ui divided items">
+        {% for course in courses %}
+          <div class="item">
+            <div class="content">
+              <a class="header" href="/{{ course.website }}/{{ course.course_id }}/">
+                {{ course.title }}
+              </a>
+              <div class="meta">
+                <span>{{ course.category }}</span>
+              </div>
+              <div class="website">
+                <p>{{ course.website}}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="ui message warning">
+        <div class="header">هیچ نتیجه‌ای پیدا نشد.</div>
+        <p>لطفاً عبارت دیگری را امتحان کنید.</p>
+      </div>
+    {% endif %}
+
+    <div style="margin-top: 2em;">
+      <a href="/" class="ui button">بازگشت به صفحه اصلی</a>
+    </div>
+  </div>
+
+</body>
+</html>

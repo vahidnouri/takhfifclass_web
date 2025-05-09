@@ -54,7 +54,20 @@
                         تخفیف کلاس
                     </span>
                 </a>
+            <div class="left menu">
+                <div class="left item">
+                    <div class="ui category search">
+                        <div class="ui inverted transparent left icon input">
+                            <input class="prompt" type="text" placeholder="جستجو ..." style="text-align:right;">
+                            <i class="search link icon"></i>
+                        </div>
+                        <div class="results"></div>
+                    </div>
+                </div>
             </div>
+            </div>
+
+
             <!--  -->
             <!-- LEFT MENU -->
             {#
@@ -68,10 +81,10 @@
                         <div class="results"></div>
                     </div>
                 </div>
-                <!-- 
+                <!--
                 <a class="icon item" onclick="$('#user_form').modal({dimmerSettings: { opacity: 0 }}).modal('show');">
                     <i class="user icon"></i>
-                </a> 
+                </a>
                 -->
             </div>
             #}
@@ -174,5 +187,46 @@
             $(".fixed.menu").transition("fade out");
         }
     });
+
+ $('.ui.search')
+    .search({
+      apiSettings: {
+        url: '/api/s/{query}/',
+      },
+      fields: {
+        results : 'items',
+        title   : 'title',
+        description: 'description',
+        url     : 'url'
+      },
+      minCharacters : 2,
+      onResults: function(response) {
+        if (response.items.length >= 10) {
+          response.items.push({
+            title: "مشاهده همه نتایج",
+            description: "",
+            url: "/search/" + $('.ui.search input').val()
+          });
+        }
+        return response;
+      },
+      onSelect: function(result, response) {
+        if (result.url) {
+          window.location.href = result.url;
+        }
+      }
+    });
+
+  // Trigger full search on Enter
+  $('.ui.search input').on('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const query = $(this).val().trim();
+      if (query.length >= 2) {
+        window.location.href = '/search/' + encodeURIComponent(query);
+      }
+    }
+  });
+
+
 </script>
 {% endblock %}

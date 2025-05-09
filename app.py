@@ -2,10 +2,12 @@ import csv
 import json
 from datetime import datetime
 from math import ceil
+import re
 
 from khayyam import JalaliDate
 from persian import convert_en_numbers
 from flask import Flask, render_template, request, send_from_directory
+from flask import jsonify
 
 from extensions import cors, db
 from models import Course, Category
@@ -89,13 +91,45 @@ def home():
 
 @app.get('/api/s/<query>/')
 def search(query):
-    result = [
-        {},
-        {},
-        {},
-    ]
-    return json.dumps(result)
+    regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
 
+    results = Course.objects.filter(
+        __raw__={
+            "$or": [
+                {"title": regex},
+                {"tags": regex},
+                {"category": regex},
+                {"description": regex},
+            ]
+        }
+    )
+
+    response = []
+    for course in results:
+        response.append({
+            "title": course.title,
+            "description": course.category,
+            "url": f"/{course.website}/{course.course_id}/",
+        })
+
+    return jsonify(response)
+
+
+
+@app.route('/search/<query>')
+def full_results(query):
+    regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
+    results = Course.objects.filter(
+        __raw__={
+            "$or": [
+                {"title": regex},
+                {"tags": regex},
+                {"category": regex},
+                {"description": regex},
+            ]
+        }
+    )
+    return render_template("search_results.html", courses=results, query=query)
 
 if __name__ == '__main__':
     app.run(debug=True)
