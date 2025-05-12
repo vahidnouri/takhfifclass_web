@@ -23,7 +23,8 @@ app.jinja_env.filters.update(
     persian=convert_en_numbers,
     persian_price=lambda x: convert_en_numbers(f'{x:,}'),
     persian_date=lambda x: convert_en_numbers(JalaliDate(x).strftime('%d %B %Y')),
-    persian_site=lambda x: {'Limoonad': 'لیموناد'}.get(x, x),
+    persian_site=lambda x: {'Limoonad': 'لیموناد', 'Maktabkhooneh': 'مکتبخونه'}.get(x, x)
+,
 )
 
 # @app.get('/favicon.ico')
@@ -41,7 +42,7 @@ def courses(category=None):
     #
     filters = {'is_free': False}
     if category:
-        filters['category'] = category
+        filters['category_1'] = category
     if search_query:
         filters = {'search_text__icontains': search_query}
         category = None
@@ -72,7 +73,7 @@ def courses(category=None):
 
 
 @app.get('/<website>/<course_id>/')
-@app.get('/<website>/<course_id>/<title>/')
+@app.get('/<website>/<course_id>/<course_url_name>/')
 def get_course(website, course_id):
     post = Course.objects(website=website, course_id=course_id).first()
     #
@@ -98,7 +99,7 @@ def search(query):
             "$or": [
                 {"title": regex},
                 {"tags": regex},
-                {"category": regex},
+                {"category_1": regex},
                 {"description": regex},
             ]
         }
@@ -108,7 +109,7 @@ def search(query):
     for course in results:
         response.append({
             "title": course.title,
-            "description": course.category,
+            "description": course.category_1,
             "url": f"/{course.website}/{course.course_id}/",
         })
 
@@ -124,7 +125,7 @@ def full_results(query):
             "$or": [
                 {"title": regex},
                 {"tags": regex},
-                {"category": regex},
+                {"category_1": regex},
                 {"description": regex},
             ]
         }
