@@ -24,10 +24,20 @@
                 {{ course.title }}
               </a>
               <div class="meta">
-                <span>{{ course.category }}</span>
+                <span>{{ course.category_1 }}</span>
               </div>
               <div class="website">
                 <p>{{ course.website}}</p>
+              </div>
+              <div class="price">
+                {% if course.is_free %}
+                  <span>رایگان</span>
+                {% elif course.has_discount %}
+                    <span>با تخفیف</span> 
+                {% else %}
+                    <span>منقضی شده </span> 
+                {% endif %}
+
               </div>
             </div>
           </div>
