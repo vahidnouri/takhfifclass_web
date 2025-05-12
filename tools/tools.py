@@ -32,8 +32,8 @@ def load2():
             Course(
                 course_id = i.get('course_id', ''),
                 title = i.get('title', ''),
-                datetime = datetime.strptime(i.get('date'), '%Y-%m-%d'),
-                teacher = i.get('Teacher', ''),
+                date = datetime.strptime(i.get('date'), '%Y-%m-%d'),
+                Teacher = i.get('Teacher', ''),
                 main_price = int(i.get('main_price') or 0),
                 discounted_price = int(i.get('discounted_price') or 0),
                 discount_percentage = int(i.get('discount_percentage') or 0),
@@ -41,7 +41,7 @@ def load2():
                 img_url = i.get('img_url', ''),
                 course_url = i.get('course_url', ''),
                 duration = i.get('Duration', ''),
-                category = i.get('category', ''),
+                category_1 = i.get('category', ''),
                 website = i.get('website', ''),
                 affiliate_link = i.get('affiliate_link', ''),
                 description = i.get('description', ''),
@@ -49,7 +49,6 @@ def load2():
                 seasons = i.get('Seasons', ''),
                 shamsi_date = i.get('shamsi_date', ''),
                 course_url_name = i.get('course_url_name', ''),
-                rephrased_desc = '',
                 is_free = False if int(i.get('main_price') or 0) else True,
             ).save()
     return 
