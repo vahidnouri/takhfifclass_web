@@ -106,6 +106,9 @@
                     <div class="description">
                         قیمت
                         &nbsp;
+                        {% if i.is_free %}                        
+                            <p>رایگان</p>
+                        {% elif i.has_discount %}
                         <del>
                             {{ i.main_price | persian_price}}
                         </del>
@@ -115,11 +118,14 @@
                         </strong>
                         &nbsp;
                         تومان
+                        {% else %}
+                            <p>منقضی شده</p>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="extra content">
                     <span class="left floated">
-                        {{ i.datetime | persian_date }}
+                        {{ i.date | persian_date }}
                     </span>
                     <span>
                         <i class="percentage icon"></i>
@@ -148,6 +154,9 @@
                 <div class="description">
                     قیمت
                     &nbsp;
+                    {% if i.is_free %}                        
+                        <p>رایگان</p>
+                    {% elif i.has_discount %}
                     <del>
                         {{ i.main_price | persian_price}}
                     </del>
@@ -157,11 +166,14 @@
                     </strong>
                     &nbsp;
                     تومان
+                    {% else %}
+                        <p>منقضی شده</p>
+                    {% endif %}
                 </div>
             </div>
             <div class="extra content">
                 <span class="left floated">
-                    {{ i.datetime | persian_date }}
+                    {{ i.date | persian_date }}
                 </span>
                 <span>
                     <i class="percentage icon"></i>
