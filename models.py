@@ -1,37 +1,44 @@
 
 from flask_mongoengine import Document
-from mongoengine import StringField, IntField, BooleanField, DateTimeField
+from mongoengine import StringField, IntField, BooleanField, DateTimeField, URLField
 
 
 class Course(Document):
-    course_id = StringField()
-    title = StringField()
-    datetime = DateTimeField()
-    teacher = StringField()
+    syllabus = StringField()   # فقط سر فصل ها را ذخیره می کند
+    about = StringField()
+    chapters = StringField()   # سرفصل ها به همراه جزئیات هر جلسه را ذخیره می کند
+    certificate = BooleanField()
+    title = StringField(required=True)
+    date = DateTimeField()
     main_price = IntField()
+    course_id = IntField(required=True)
     discounted_price = IntField()
     discount_percentage = IntField()
-    has_discount = BooleanField()
+    course_url = URLField(required=True)         # Full course URL
     img_url = StringField()
-    course_url = StringField()
-    duration = StringField()
-    category = StringField()
+    has_discount = BooleanField()
+    category_1 = StringField()
+    category_2 = StringField()
+    category_3 = StringField()
     website = StringField()
     affiliate_link = StringField()
-    description = StringField()
-    summary = StringField()
-    seasons = StringField()
+    description = StringField()       # A compelete Markdown based description with a combination of Summary, Seasons, about, chapters and certificate    
+    new_description = StringField()   # A description that would be updated through deepseek later
+    short_url = StringField()
+    course_time = StringField()
+    course_url_name = StringField()   # Just name of course URL
     shamsi_date = StringField()
-    course_url_name = StringField()
-    rephrased_desc = StringField()
+    Teacher = StringField()
+    duration = StringField()
+    category_English = StringField()
+    tag = StringField()
     is_free = BooleanField()
     search_text = StringField()
-
     meta = dict(
         indexes=[
-            'title', 'datetime', 'main_price', 
+            'title', 'date', 'main_price', 
             'discount_percentage', 'is_free', 
-            'category', 'website'
+            'category_1', 'website'
         ]
     )
 
