@@ -99,9 +99,9 @@
                     <img src="{{ i.img_url }}" alt="{{ i.title }}">
                 </a>
                 <div class="content">
-                    <div class="header">{{ i.title }}</div>
+                    <a class="header" href="/{{ i.website }}/{{ i.course_id }}/">{{ i.title }}</a>
                     <div class="meta">
-                        <a>{{ i.website | persian_site }}</a>
+                        <p>{{ i.website | persian_site }}</p>
                     </div>
                     <div class="description">
                         قیمت
@@ -147,9 +147,9 @@
                 <img src="{{ i.img_url }}" alt="{{ i.title }}">
             </a>
             <div class="content">
-                <div class="header">{{ i.title }}</div>
+                <a class="header" href="/{{ i.website }}/{{ i.course_id }}/">{{ i.title }}</a>
                 <div class="meta">
-                    <a>{{ i.website | persian_site }}</a>
+                    <p>{{ i.website | persian_site }}</p>
                 </div>
                 <div class="description">
                     قیمت
@@ -185,7 +185,7 @@
     </div>
     <!--  -->
     <div style="padding: 2em 0 2em 0;">
-        {{ pagination(data.current_page, data.pages, data.last_page, data.category or '/') }}
+        {{ pagination(data.current_page, data.pages, data.last_page) }}
     </div>
 </div>
 <!--  -->
