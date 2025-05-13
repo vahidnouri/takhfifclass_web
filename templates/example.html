@@ -8,8 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
     <!-- Site Properties -->
-    <title>Sticky Example - Semantic</title>
-
+    <title>{{ data.title }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.css">
 
 
@@ -104,17 +103,17 @@
 </head>
 
 <body>
-
+    <div class="ui segment"></div>
+    <img class="ui centered medium image" src= {{data.course_image}} >
     <div class="ui main text container">
-        <h1 class="ui header">Sticky Example</h1>
-        <p>This example shows how to use lazy loaded images, a sticky menu, and a simple text container</p>
+        <!-- <h1 class="ui header">{{data.title}}</h1> -->
+        {# <p>This example shows how to use lazy loaded images, a sticky menu, and a simple text container</p> #}
     </div>
 
 
-    <div class="ui borderless main menu">
+    {# <div class="ui borderless main menu">
         <div class="ui text container">
             <div class="header item">
-                <img class="logo" src="assets/images/logo.png">
                 Project Name
             </div>
             <a href="#" class="item">Blog</a>
@@ -138,34 +137,23 @@
                 </div>
             </a>
         </div>
-    </div>
+    </div>#}
 
     <div class="ui text container">
-        <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum
-            tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas
-            semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien
-            ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean
-            fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec
-            non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque
-            egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan
-            porttitor, facilisis luctus, metus</p>
-        <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum
-            tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas
-            semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien
-            ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean
-            fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec
-            non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque
-            egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan
-            porttitor, facilisis luctus, metus</p>
-        <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum
-            tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas
-            semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien
-            ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean
-            fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec
-            non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque
-            egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan
-            porttitor, facilisis luctus, metus</p>
-        <div class="overlay">
+        <a href={{data.class_link}} class="ui button">ثبت نام در کلاس</a>
+        <div id="description"></div>
+        <!-- Short preview (first 300 characters, or whatever limit you prefer) -->
+            <div id="short-description">
+                {{ data.short_description | safe }}   
+                <a href="#" id="toggle-btn" onclick="toggleDescription(event)">اطلاعات بیشتر</a>  
+            </div>
+            <!-- Full description (initially hidden) -->
+            <div id="full-description" style="display: none;">
+                {{data.full_description | safe }}
+                <a href="#" id="toggle-btn-hide" onclick="toggleDescription(event)">مخفی کردن</a>
+            </div> 
+        </div>    
+       {# <div class="overlay">
             <div class="ui labeled icon vertical menu">
                 <a class="item"><i class="twitter icon"></i> Tweet</a>
                 <a class="item"><i class="facebook icon"></i> Share</a>
@@ -266,6 +254,9 @@
             non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque
             egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan
             porttitor, facilisis luctus, metus</p>
+            #}
+        
+        <a href={{data.class_link}} class="ui button">ثبت نام در کلاس</a>
     </div>
 
     <div class="ui inverted vertical footer segment">
@@ -313,6 +304,20 @@
             </div>
         </div>
     </div>
+    <script>
+        function toggleDescription(event) {
+          event.preventDefault();
+          const shortDesc = document.getElementById("short-description");
+          const fullDesc = document.getElementById("full-description");
+          if (shortDesc.style.display === "none") {
+            shortDesc.style.display = "block";
+            fullDesc.style.display = "none";
+          } else {
+            shortDesc.style.display = "none";
+            fullDesc.style.display = "block";
+          }
+        }
+        </script>
 </body>
 
 </html>
