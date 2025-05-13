@@ -1,4 +1,4 @@
-{% macro pagination(page, pages, last, ref, args={}) %}
+{% macro pagination(page, pages, last, args={}) %}
 {% if pages|length > 1 %}
 {% set _ = namespace(param='') %}
 {% for k,v in args.items() %}
@@ -12,7 +12,7 @@
 <center>
     <div class="ui secondary pagination menu">
         {% if 1 not in pages %}
-        <a class="item" href="{{ ref }}?page=1&{{ _.param }}">
+        <a class="item" href="?page=1&{{ _.param }}">
             <span style="color:#4e473d;">
                 <i class="angle double right icon"></i>
             </span>
@@ -20,13 +20,13 @@
         {% endif %}
         <!--  -->
         {% for i in pages %}
-        <a class="{{ 'active' if i==page else '' }} item" href="{{ ref }}?page={{ i }}&{{ _.param }}">
+        <a class="{{ 'active' if i==page else '' }} item" href="?page={{ i }}&{{ _.param }}">
             <span style="{{ 'font-weight: bold;' if i==page else '' }} color:#4e473d;">{{ i|persian }}</span>
         </a>
         {% endfor %}
         <!--  -->
         {% if last not in pages %}
-        <a class="item" href="{{ ref }}?page={{ last }}&{{ _.param }}">
+        <a class="item" href="?page={{ last }}&{{ _.param }}">
             <span style="color:#4e473d;">
                 <i class="angle double left icon"></i>
             </span>
