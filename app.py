@@ -3,10 +3,10 @@ import json
 from datetime import datetime
 from math import ceil
 import re
-
+import markdown 
 from khayyam import JalaliDate
 from persian import convert_en_numbers
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory, abort
 from flask import jsonify
 
 from extensions import cors, db
@@ -42,7 +42,7 @@ def courses(category=None):
     #
     filters = {'is_free': False}
     if category:
-        filters['category_1'] = category
+        filters['category_English'] = category
     if search_query:
         filters = {'search_text__icontains': search_query}
         category = None
@@ -56,7 +56,7 @@ def courses(category=None):
     pages = previous_pages[-2:] + next_pages[:3]
     #
     categories = Category.objects
-    category_menu = {i.title: i.title for i in categories}
+    category_menu = {i.title: i.name for i in categories}
     #
     data = {
         'posts': posts,
@@ -85,9 +85,33 @@ def get_course(website, course_id):
 
 
 
-@app.get('/home/')
-def home():
-    return render_template('example.html')
+@app.get('/home/<website>/<course_id>')
+def home(website, course_id):
+    course = Course.objects(course_id=course_id, website=website).first()
+    if not course:
+        abort(404, "چنین کلاسی یافت نشد.")
+    # course.description_html = markdown.markdown(course.description)
+        
+    # Create preview safely from raw Markdown
+    raw_description = course.description or ""
+    raw_preview = raw_description[:300] + "..."
+
+    full_desc = markdown.markdown(raw_description )
+    preview_desc = markdown.markdown(raw_preview )
+
+
+    data = {'title': course.title,
+            'short_description': preview_desc,
+            'course_image': course.img_url,
+            'full_description': full_desc,
+            'main_price': course.main_price,
+            'discounted_price': course.discounted_price,
+            'discount_percentage': course.discount_percentage,
+            'class_link': course.affiliate_link,
+
+            
+            }
+    return render_template('example.html', data=data)
 
 
 @app.get('/api/s/<query>/')
