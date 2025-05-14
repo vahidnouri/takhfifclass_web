@@ -8,6 +8,7 @@ from khayyam import JalaliDate
 from persian import convert_en_numbers
 from flask import Flask, render_template, request, send_from_directory, abort
 from flask import jsonify
+from mongoengine.connection import get_db
 
 from extensions import cors, db
 from models import Course, Category, OptimizedCourse
@@ -18,6 +19,7 @@ app.config.from_pyfile('settings.py')
 cors.init_app(app)
 db.init_app(app)
 
+db2 = get_db()
 
 app.jinja_env.filters.update(
     persian=convert_en_numbers,
@@ -93,10 +95,11 @@ def home(website, course_id):
     if not course:
         abort(404, "چنین کلاسی یافت نشد.")
     # course.description_html = markdown.markdown(course.description)
-    related_courses = Course.objects(
-    category_1=course.category_1,  # Match the same category
-    id__ne=course.id           # Exclude the current course
-        ).limit(3)                     # Get only 3
+    related_courses = list(db2.course.aggregate([
+    {"$match": {"category_1": course.category_1, "_id": {"$ne": course.id}}},
+    {"$sample": {"size": 3}}
+    ]))
+
     
     # Create preview safely from raw Markdown
     raw_description = new_desc.new_description if new_desc else course.description or ""
