@@ -51,3 +51,15 @@ class Category(Document):
         indexes=['name']
     )
 
+class OptimizedCourse(Document):
+    course_id = IntField(required=True, unique=True)
+    website = StringField(required=True)
+    original_description = StringField(required=True)
+    new_description = StringField(required=True)
+    is_generated = BooleanField(default=True)
+    generated_at = DateTimeField()
+    cta = StringField()
+    meta_description = StringField()
+    meta = {
+        'collection': 'optimized_courses'
+    }

@@ -10,7 +10,7 @@ from flask import Flask, render_template, request, send_from_directory, abort
 from flask import jsonify
 
 from extensions import cors, db
-from models import Course, Category
+from models import Course, Category, OptimizedCourse
 
 
 app = Flask(__name__)
@@ -73,7 +73,7 @@ def courses(category=None):
 
 
 @app.get('/<website>/<course_id>/')
-@app.get('/<website>/<course_id>/<course_url_name>/')
+# @app.get('/<website>/<course_id>/<course_url_name>/')
 def get_course(website, course_id):
     post = Course.objects(website=website, course_id=course_id).first()
     #
@@ -88,18 +88,25 @@ def get_course(website, course_id):
 @app.get('/home/<website>/<course_id>')
 def home(website, course_id):
     course = Course.objects(course_id=course_id, website=website).first()
+    new_desc = OptimizedCourse.objects(course_id=course_id, website=website).first()
+    
     if not course:
         abort(404, "چنین کلاسی یافت نشد.")
     # course.description_html = markdown.markdown(course.description)
-        
+    related_courses = Course.objects(
+    category_1=course.category_1,  # Match the same category
+    id__ne=course.id           # Exclude the current course
+        ).limit(3)                     # Get only 3
+    
     # Create preview safely from raw Markdown
-    raw_description = course.description or ""
+    raw_description = new_desc.new_description if new_desc else course.description or ""
+    cta = new_desc.cta if new_desc else "از لینک زیر ثبت نام کنید"
+    meta = new_desc.meta_description if new_desc else ""
     raw_preview = raw_description[:300] + "..."
 
-    full_desc = markdown.markdown(raw_description )
-    preview_desc = markdown.markdown(raw_preview )
-
-
+    full_desc = markdown.markdown(raw_description, extensions=['tables'] )
+    preview_desc = markdown.markdown(raw_preview, extensions=['tables'] )
+    full_desc = full_desc.replace('<table>', '<table class="table table-bordered table-striped">')
     data = {'title': course.title,
             'short_description': preview_desc,
             'course_image': course.img_url,
@@ -108,8 +115,9 @@ def home(website, course_id):
             'discounted_price': course.discounted_price,
             'discount_percentage': course.discount_percentage,
             'class_link': course.affiliate_link,
-
-            
+            'related_courses': related_courses,
+            'cta': cta,
+            'meta': meta
             }
     return render_template('example.html', data=data)
 
