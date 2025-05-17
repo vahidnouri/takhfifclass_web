@@ -74,21 +74,9 @@ def courses(category=None):
     return render_template('home.html', data=data)
 
 
-@app.get('/<website>/<course_id>/')
-# @app.get('/<website>/<course_id>/<course_url_name>/')
-def get_course(website, course_id):
-    post = Course.objects(website=website, course_id=course_id).first()
-    #
-    data = {
-        'post': post,
-        'related_posts': [],
-    }
-    return render_template('4.html', data=data)
-
-
-
-@app.get('/home/<website>/<course_id>')
-def home(website, course_id):
+@app.get('/<website>/<course_id>')
+@app.get('/<website>/<course_id>/<course_url_name>')
+def home(website, course_id, course_url_name=None):
     course = Course.objects(course_id=course_id, website=website).first()
     new_desc = OptimizedCourse.objects(course_id=course_id, website=website).first()
     
@@ -118,6 +106,7 @@ def home(website, course_id):
             'discounted_price': course.discounted_price,
             'discount_percentage': course.discount_percentage,
             'class_link': course.affiliate_link,
+            'course_name': course.course_url_name,
             'related_courses': related_courses,
             'cta': cta,
             'meta': meta

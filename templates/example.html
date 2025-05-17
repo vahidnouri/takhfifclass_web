@@ -122,50 +122,24 @@
     <div class="ui segment"></div>
     <img class="ui centered medium image" src= {{data.course_image}} >
     <div class="ui main text container">
-        <!-- <h1 class="ui header">{{data.title}}</h1> -->
+        <h1 class="ui header" dir ="rtl">{{data.title}}</h1>
         {# <p>This example shows how to use lazy loaded images, a sticky menu, and a simple text container</p> #}
     </div>
 
-
-    {# <div class="ui borderless main menu">
-        <div class="ui text container">
-            <div class="header item">
-                Project Name
-            </div>
-            <a href="#" class="item">Blog</a>
-            <a href="#" class="item">Articles</a>
-            <a href="#" class="ui right floated dropdown item">
-                Dropdown <i class="dropdown icon"></i>
-                <div class="menu">
-                    <div class="item">Link Item</div>
-                    <div class="item">Link Item</div>
-                    <div class="divider"></div>
-                    <div class="header">Header Item</div>
-                    <div class="item">
-                        <i class="dropdown icon"></i>
-                        Sub Menu
-                        <div class="menu">
-                            <div class="item">Link Item</div>
-                            <div class="item">Link Item</div>
-                        </div>
-                    </div>
-                    <div class="item">Link Item</div>
-                </div>
-            </a>
-        </div>
-    </div>#}
-
     <div class="ui text container">
-        <a href={{data.class_link}} class="ui button">ثبت نام در کلاس</a>
+        <a href={{data.class_link}} class="ui button">ثبت نام در کلاس</a>        
         <div id="description"></div>
+    <div style="margin-top: 2em;">
+            <a href="/" class="ui button">بازگشت به صفحه اصلی</a>
+    </div>        
         <!-- Short preview (first 300 characters, or whatever limit you prefer) -->
             <div id="short-description" dir="rtl">
-                {{ data.short_description | safe }}   
+                <h2 class="course-description"> {{ data.short_description | safe }} </h2>  
                 <a href="#" id="toggle-btn" onclick="toggleDescription(event)">اطلاعات بیشتر</a>  
             </div>
             <!-- Full description (initially hidden) -->
             <div id="full-description" style="display: none;" dir="rtl">
-                {{data.full_description | safe }}
+                <h2 class="course-description">  {{data.full_description | safe }} </h2>
                 <strong> {{ data.cta.strip('\"') | safe }} </strong>
                 <br>
                 <br>
@@ -187,7 +161,7 @@
                     <div class="ui stackable three column grid">
                         {% for course in data.related_courses %}
                         <div class="column">
-                            <a href="/home/{{ course.website }}/{{ course.course_id }}/" target="_blank">
+                            <a href="/{{ course.website }}/{{ course.course_id }}/{{ course.course_url_name }}" target="_blank">
                             <div class="ui fluid card">
                                 <div class="image">
                                     <img src="{{ course.img_url }}" alt="{{ course.title }}">
@@ -210,7 +184,7 @@
             </div>
     
             <div class="ui inverted section divider"></div>
-            <img src="assets/images/logo.png" class="ui centered mini image">
+            <!-- <img src="assets/images/logo.png" class="ui centered mini image"> -->
     
             {# <div class="ui horizontal inverted small divided link list">
                 <a class="item" href="#">Site Map</a>

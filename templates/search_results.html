@@ -20,7 +20,7 @@
         {% for course in courses %}
           <div class="item">
             <div class="content">
-              <a class="header" href="/{{ course.website }}/{{ course.course_id }}/">
+              <a class="header" href="/{{ course.website }}/{{ course.course_id }}/{{ course.course_url_name }}">
                 {{ course.title }}
               </a>
               <div class="meta">
@@ -33,7 +33,10 @@
                 {% if course.is_free %}
                   <span>رایگان</span>
                 {% elif course.has_discount %}
-                    <span>با تخفیف</span> 
+                <span>با تخفیف</span> 
+                <br>
+                <del>{{ course.main_price }}</del> 
+                <strong>{{ course.discounted_price }}</strong> 
                 {% else %}
                     <span>منقضی شده </span> 
                 {% endif %}
