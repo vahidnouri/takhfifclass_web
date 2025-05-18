@@ -3,7 +3,7 @@ services:
   web:
     build: .
     ports:
-      - "45123:5000"
+      - "5000:45123"
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=production
@@ -18,7 +18,7 @@ services:
   mongodb:
     image: mongo:latest
     ports:
-      - "42717:27017"
+      - "27017:42717"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=VahidSecurePass123
