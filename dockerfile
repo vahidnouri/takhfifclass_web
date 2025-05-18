@@ -23,5 +23,4 @@ ENV FLASK_APP=app.py
 ENV FLASK_DEBUG=0
 
 # Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app", "workers", "4"]
-# CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["flask", "run", "--host=0.0.0.0"]
