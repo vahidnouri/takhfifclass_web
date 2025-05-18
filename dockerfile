@@ -1,14 +1,8 @@
-# Use Python 3.12 slim image as base
-FROM python:3.12-slim
+# Use BaseImage
+FROM python:3.12
 
 # Set working directory
 WORKDIR /app
-
-# Set build arguments for DNS (optional)
-ARG DNS1=8.8.8.8
-ARG DNS2=8.8.4.4
-RUN echo "nameserver ${DNS1}" > /etc/resolv.conf && \
-    echo "nameserver ${DNS2}" >> /etc/resolv.conf
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
