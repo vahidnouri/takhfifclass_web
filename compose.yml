@@ -1,3 +1,4 @@
+version: '3.8'
 
 services:
   web:
@@ -22,6 +23,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=VahidSecurePass123
+    command: mongod --bind_ip_all
     volumes:
       - mongodb_data:/data/db
     networks:
