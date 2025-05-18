@@ -98,6 +98,8 @@ def home(website, course_id, course_url_name=None):
     full_desc = markdown.markdown(raw_description, extensions=['tables'] )
     preview_desc = markdown.markdown(raw_preview, extensions=['tables'] )
     full_desc = full_desc.replace('<table>', '<table class="table table-bordered table-striped">')
+    categories = Category.objects
+    category_menu = {i.title: i.name for i in categories}
     data = {'title': course.title,
             'short_description': preview_desc,
             'course_image': course.img_url,
@@ -109,7 +111,8 @@ def home(website, course_id, course_url_name=None):
             'course_name': course.course_url_name,
             'related_courses': related_courses,
             'cta': cta,
-            'meta': meta
+            'meta': meta,
+            'menu': category_menu,
             }
     return render_template('example.html', data=data)
 
@@ -154,7 +157,13 @@ def full_results(query):
             ]
         }
     )
-    return render_template("search_results.html", courses=results, query=query)
+    categories = Category.objects
+    category_menu = {i.title: i.name for i in categories}
+    data = {
+        'keywords': [query],
+        'menu': category_menu,
+    }
+    return render_template("search_results.html", courses=results, query=query, data=data)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
