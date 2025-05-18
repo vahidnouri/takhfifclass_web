@@ -12,10 +12,6 @@ RUN apt-get update && apt-get install -y \
 # Copy the rest of the application
 COPY . .
 
-# Set DNS servers
-RUN echo "nameserver 8.8.8.8" > /etc/resolv.conf && \
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
