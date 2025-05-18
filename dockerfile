@@ -4,6 +4,12 @@ FROM python:3.12-slim
 # Set working directory
 WORKDIR /app
 
+# Set build arguments for DNS (optional)
+ARG DNS1=8.8.8.8
+ARG DNS2=8.8.4.4
+RUN echo "nameserver ${DNS1}" > /etc/resolv.conf && \
+    echo "nameserver ${DNS2}" >> /etc/resolv.conf
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -13,14 +19,15 @@ RUN apt-get update && apt-get install -y \
 COPY . .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --retries 10 -r requirements.txt
 
 # Expose port 5000
 EXPOSE 5000
 
 # Set environment variables
 ENV FLASK_APP=app.py
-ENV FLASK_ENV=production
+ENV FLASK_DEBUG=0
 
 # Run the application
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app", "workers", "4"]
+# CMD ["flask", "run", "--host=0.0.0.0"]
