@@ -7,7 +7,7 @@ services:
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=production
-      - MONGODB_URI=mongodb://mongodb:27017/vahid
+      - MONGODB_URI=mongodb://admin:VahidSecurePass123@mongodb:27017/takhfif_class?authSource=admin
     depends_on:
       - mongodb
     volumes:
@@ -19,6 +19,9 @@ services:
     image: mongo:latest
     ports:
       - "42717:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=VahidSecurePass123
     volumes:
       - mongodb_data:/data/db
     networks:
