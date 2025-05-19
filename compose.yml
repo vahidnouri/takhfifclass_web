@@ -1,0 +1,36 @@
+
+services:
+  web:
+    build: .
+    ports:
+      - "5111:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=production
+      - MONGODB_URI=mongodb://admin:VahidSecurePass123@mongodb:27017/takhfif_class?authSource=admin
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "5112:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=VahidSecurePass123
+    command: mongod --bind_ip_all
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  app-network:
+    driver: bridge
