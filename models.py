@@ -46,8 +46,6 @@ class Course(Document):
 class Category(Document):
     name = StringField()    # English name of category
     title = StringField()   # Persian name of category
-    img_url = StringField()
-
     meta = dict(
         indexes=['name']
     )
