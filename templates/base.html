@@ -130,15 +130,15 @@
                     <i class="sidebar icon"></i>
                     <div class="teal_menu menu" style="right: 0; left: auto;">
                         {% for k,v in data.menu.items() if v != None %}
-                        <a class="{{'active selected' if data.page_name == k else ''}} item" href="/{{ k }}"
+                        <a class="{{'active selected' if data.page_name == k else ''}} item" href="/{{ v }}"
                             style="text-align:right; color:#fff !important;">
-                            {{ v }}
+                            {{ k }}
                         </a>
                         {% endfor %}
                     </div>
                 </div>
 
-                <a class="item" href="/home/">
+                <a class="item" href="/">
                     <img class="ui mini image" src="/static/logo.png">
                     <!-- <i class="percent icon"></i> -->
                     &nbsp;&nbsp;
