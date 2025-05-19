@@ -47,7 +47,7 @@
             <!-- --- -->
             <!-- RIGHT MENU -->
             <div class="right menu">
-                <a class="item" href="/home/">
+                <a class="item" href="/">
                     <img class="ui mini image" src="/static/logo.png">
                     <!-- <i class="percent icon"></i> -->
                     &nbsp;&nbsp;
@@ -74,48 +74,22 @@
     </div>
     <!--  -->
     <div class="ui container" style="padding:2em 0 1em 0;">
-        <div class="ui stackable centered four cards">
-            {% for i in data.posts[1:9] %}
-            <div class="ui raised link inverted_ semi-dark teal card">
-                <a class="image" href="/{{ i.website }}/{{ i.course_id }}/{{i.course_url_name}}">
-                    <img src="{{ i.img_url }}" alt="{{ i.title }}">
+            <div class="ui stackable centered grid">
+        {% for cat in data.category_cards %}
+            {% if loop.index0 % 5 == 0 %}
+                {% if not loop.first %}</div>{% endif %}
+                <div class="row" style="margin-bottom: 2em;">
+            {% endif %}
+            <div class="three wide column" style="display: flex; flex-direction: column; align-items: center;">
+                <a class="image" href="/{{ cat.name }}">
+                    <img class="ui medium circular image" src="{{ url_for('static', filename='images/' ~ cat.image) }}" alt="{{ cat.title }}">
                 </a>
-                <div class="content">
-                    <a class="header" href="/{{ i.website }}/{{ i.course_id }}/{{i.course_url_name}}">{{ i.title }}</a>
-                    <div class="meta">
-                        <p>{{ i.website | persian_site }}</p>
-                    </div>
-                    <div class="description">
-                        قیمت
-                        &nbsp;
-                        {% if i.is_free %}                        
-                            <p>رایگان</p>
-                        {% elif i.has_discount %}
-                        <del>
-                            {{ i.main_price | persian_price}}
-                        </del>
-                        &nbsp;
-                        <strong>
-                            {{ i.discounted_price | persian_price}}
-                        </strong>
-                        &nbsp;
-                        تومان
-                        {% else %}
-                            <p>منقضی شده</p>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="extra content">
-                    <span class="left floated">
-                        {{ i.date | persian_date }}
-                    </span>
-                    <span>
-                        <i class="percentage icon"></i>
-                        {{ i.discount_percentage | persian }}
-                    </span>
+                <div class="content" style="text-align:center; margin-top: 0.5em;">
+                    <a class="header" href="/{{ cat.name }}">{{ cat.title }}</a>
                 </div>
             </div>
-            {% endfor %}
+            {% if loop.last %}</div>{% endif %}
+        {% endfor %}
         </div>
     </div>
 </div>
