@@ -9,7 +9,7 @@ from persian import convert_en_numbers
 from flask import Flask, render_template, request, send_from_directory, abort
 from flask import jsonify
 from mongoengine.connection import get_db
-
+import os
 from extensions import cors, db
 from models import Course, Category, OptimizedCourse
 
@@ -60,6 +60,27 @@ def courses(category=None):
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
     #
+    # List all images in the 'static/images' folder
+    images_folder = os.path.join(app.static_folder, 'images')
+    image_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.webp')
+
+    category_cards = []
+    for cat in categories[:10]:  # Limit to 10
+        # Try to find an image file matching the category English name
+        image_filename = None
+        for ext in image_extensions:
+            candidate = f"{cat.name}{ext}"
+            if os.path.exists(os.path.join(images_folder, candidate)):
+                image_filename = candidate
+                break
+        # If not found, use a default image
+        if not image_filename:
+            image_filename = "default.png"
+        category_cards.append({
+            "name": cat.name,      # English, for URL
+            "title": cat.title,    # Persian, for display
+            "image": image_filename
+        })
     data = {
         'posts': posts,
         'pages': pages,
@@ -70,6 +91,7 @@ def courses(category=None):
         'search_query': search_query,
         'page': 'home',
         'menu': category_menu,
+        "category_cards": category_cards,  # Pass image paths to template
     }
     return render_template('home.html', data=data)
 
@@ -157,13 +179,29 @@ def full_results(query):
             ]
         }
     )
+    page = int(request.args.get('page', 1))
+    page_size = int(request.args.get('page_size', 20))
+    #
+    posts = results.order_by('-discount_percentage').skip(page_size*(page-1)).limit(page_size)
+    count = results.count()
+    #
+    pages_count = ceil(count / page_size)
+    previous_pages = list(range(1, page))
+    next_pages = list(range(page, pages_count+1))
+    pages = previous_pages[-2:] + next_pages[:3]
+    #
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
+
     data = {
         'keywords': [query],
         'menu': category_menu,
+        'posts': posts,
+        'pages': pages,
+        'current_page': page,
+        'last_page': pages_count,
     }
     return render_template("search_results.html", courses=results, query=query, data=data)
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
