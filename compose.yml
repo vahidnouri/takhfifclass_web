@@ -7,30 +7,15 @@ services:
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=production
-      - MONGODB_URI=mongodb://admin:VahidSecurePass123@mongodb:27017/takhfif_class?authSource=admin
+      - MONGODB_URI=mongodb://root:b2vFj15t5HsMJilIH39GKY4gPMYGpv@207.180.208.52:5921/?authSource=admin
     depends_on:
       - mongodb
     volumes:
       - .:/app
     networks:
-      - app-network
+      - cloudflare
 
-  mongodb:
-    image: mongo:latest
-    ports:
-      - "5112:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=VahidSecurePass123
-    command: mongod --bind_ip_all
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - app-network
-
-volumes:
-  mongodb_data:
 
 networks:
-  app-network:
-    driver: bridge
+  cloudflare:
+    external: true
