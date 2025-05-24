@@ -174,6 +174,7 @@ def full_results(query):
             "$or": [
                 {"title": regex},
                 {"tags": regex},
+                {"Teacher": regex},
                 {"category_1": regex},
                 {"description": regex},
             ]

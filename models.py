@@ -23,11 +23,9 @@ class Course(Document):
     website = StringField()
     affiliate_link = StringField()
     description = StringField()       # A compelete Markdown based description with a combination of Summary, Seasons, about, chapters and certificate    
-    new_description = StringField()   # A description that would be updated through deepseek later
     short_url = StringField()
     course_time = StringField()
     course_url_name = StringField()   # Just name of course URL
-    shamsi_date = StringField()
     Teacher = StringField()
     duration = StringField()
     category_English = StringField()
@@ -38,7 +36,17 @@ class Course(Document):
         indexes=[
             'title', 'date', 'main_price', 
             'discount_percentage', 'is_free', 
-            'category_1', 'website'
+            'category_1', 'website', 'Teacher', 'tags', 'category_English',
+            {
+            'fields': ['$title', '$tags', '$category_1', '$Teacher'],
+            'default_language': 'none',
+            'weights': {
+                'title': 10,
+                'tags': 5,
+                'category_1': 1,
+                'Teacher': 4,
+            }
+        }
         ]
     )
 
@@ -51,7 +59,7 @@ class Category(Document):
     )
 
 class OptimizedCourse(Document):
-    course_id = IntField(required=True, unique=True)
+    course_id = IntField(required=True)
     website = StringField(required=True)
     original_description = StringField(required=True)
     new_description = StringField(required=True)
@@ -59,6 +67,19 @@ class OptimizedCourse(Document):
     generated_at = DateTimeField()
     cta = StringField()
     meta_description = StringField()
+
     meta = {
-        'collection': 'optimized_courses'
+        'collection': 'optimized_courses',
+        'indexes': [
+            {'fields': ['course_id', 'website'], 'unique': True},
+            'is_generated',
+            '-generated_at',  # Descending index for sorting
+            {
+                'fields': ['$new_description'],
+                'default_language': 'none',
+                'weights': {
+                    'new_description': 1
+                }
+            }
+        ]
     }
