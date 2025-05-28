@@ -7,7 +7,7 @@ services:
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=production
-      - MONGODB_URI=mongodb://root:b2vFj15t5HsMJilIH39GKY4gPMYGpv@207.180.208.52:5921/?authSource=admin
+      - MONGODB_URI=mongodb://root:b2vFj15t5HsMJilIH39GKY4gPMYGpv@207.180.208.52:5921/scraped_data?authSource=admin
     volumes:
       - .:/app
     networks:
