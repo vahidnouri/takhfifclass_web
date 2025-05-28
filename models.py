@@ -36,13 +36,13 @@ class Course(Document):
         indexes=[
             'title', 'date', 'main_price', 
             'discount_percentage', 'is_free', 
-            'category_1', 'website', 'Teacher', 'tags', 'category_English',
+            'category_1', 'website', 'Teacher', 'tag', 'category_English',
             {
-            'fields': ['$title', '$tags', '$category_1', '$Teacher'],
+            'fields': ['$title', '$tag', '$category_1', '$Teacher'],
             'default_language': 'none',
             'weights': {
                 'title': 10,
-                'tags': 5,
+                'tag': 5,
                 'category_1': 1,
                 'Teacher': 4,
             }
