@@ -73,7 +73,7 @@
                 <img src="{{ i.img_url }}" alt="{{ i.title }}">
             </a>
             <div class="content">
-                <a class="header" href="/{{ i.website }}/{{ i.course_id }}/{{ i.course_url_name | default(i.title, true) }}">{{ i.title }}</a>
+                <a class="header" href="/{{ i.website }}/{{ i.course_id }}/{{ i.course_url_name }}">{{ i.title }}</a>
 
                 <div class="meta">
                     <p>{{ i.website | persian_site }}</p>
