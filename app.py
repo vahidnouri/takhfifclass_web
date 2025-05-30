@@ -96,6 +96,7 @@ def courses(category=None):
     return render_template('home.html', data=data)
 
 
+@app.get('/<website>/<course_id>/')
 @app.get('/<website>/<course_id>')
 @app.get('/<website>/<course_id>/<course_url_name>')
 def home(website, course_id, course_url_name=None):
