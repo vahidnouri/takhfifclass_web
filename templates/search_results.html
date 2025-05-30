@@ -6,7 +6,13 @@
 <meta name="description" content="" />
 <meta name="keywords" content="{{ data.keywords| join(',')}}" />
   <style>
-    body { direction: rtl; padding: 2em; }
+    body {
+      direction: rtl;
+      padding-top: 7em; /* this clears the fixed menu space */
+      padding-right: 2em;
+      padding-left: 2em;
+      padding-bottom: 2em;
+    }
   </style>
 {% endblock %}
 

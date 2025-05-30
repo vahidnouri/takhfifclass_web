@@ -15,36 +15,6 @@
 <div class="ui teal inverted vertical masthead center aligned segment" style="margin-bottom: 4em;">
     <div class="ui container">
         <div class="ui large secondary inverted pointing menu">
-            {#
-            <div class="ui right dropdown toc item">
-                <i class="sidebar icon"></i>
-                <div class="vertical light menu">
-                    <a class="active selected item righted" href="/">خانه</a>
-                    <!--  -->
-                    {% for k,v in data.menu.items() if v != None %}
-                    <!--  -->
-                    {% if v|is_str %}
-                    <a class="item righted" href="/{{ k }}">{{ v }}</a>
-                    <!--  -->
-                    {% else %}
-                    <!--  -->
-                    <div class="right dropdown item">
-                        {{ v[0] }}<i class="left caret icon" style="margin:0 .25em 0 0!important"></i>
-                        <div class="light compact menu left transition">
-                            {% for k_,v_ in v[1].items() %}
-                            <a class="item righted" href="/{{ k }}/{{ k_ }}">{{ v_ }}</a>
-                            <!--  -->
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <!--  -->
-                    {% endif %}
-                    <!--  -->
-                    {% endfor %}
-                </div>
-            </div>
-            #}
-            <!-- --- -->
             <!-- RIGHT MENU -->
             <div class="right menu">
                 <a class="item" href="/">
@@ -74,7 +44,7 @@
     </div>
     <!--  -->
     <div class="ui container" style="padding:2em 0 1em 0;">
-            <div class="ui stackable centered grid">
+             <div class="ui two column centered grid" style="gap: 1.5em 0;">
         {% for cat in data.category_cards %}
             {% if loop.index0 % 5 == 0 %}
                 {% if not loop.first %}</div>{% endif %}

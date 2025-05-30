@@ -11,8 +11,64 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vazirmatn@33.0.3/Vazirmatn-font-face.min.css">
     <style>
+        @media (max-width: 768px) {
+        /* Shrink the top menu height & font size */
+        .ui.menu {
+            font-size: 0.8em !important;
+            padding: 0.5em 0.5em !important;
+        }
+
+        /* Shrink logo */
+        .ui.menu .ui.image {
+            width: 24px !important;
+            height: auto;
+        }
+
+        /* Shrink input (search box) */
+        .ui.menu .ui.input input {
+            font-size: 0.8em !important;
+            padding: 0.4em !important;
+        }
+
+        /* Reduce spacing around menu items */
+        .ui.menu .item {
+            padding: 0.3em 0.6em !important;
+        }
+
+        /* Reduce size of the sidebar icon if used */
+        .ui.menu .sidebar.icon {
+            font-size: 1.2em !important;
+        }
+
+        /* Optional: shrink the entire container inside the menu */
+        .ui.container {
+            padding-left: 0.5em !important;
+            padding-right: 0.5em !important;
+        }
+        }
+
         html {
             scroll-behavior: smooth;
+        }
+        @media (max-width: 768px) {
+        /* Shrink the image inside the logo item */
+        .ui.menu .item img.ui.mini.image {
+            width: 24px !important;
+            height: auto !important;
+            margin: 0 !important;
+        }
+
+        /* Ensure the item holding the logo doesn't overflow */
+        .ui.menu .item {
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        /* If needed, reduce font size of adjacent span */
+        .ui.menu .item span {
+            font-size: 0.8em !important;
+            white-space: nowrap;
+        }
         }
 
         body,
