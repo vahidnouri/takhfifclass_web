@@ -299,6 +299,15 @@
                     url: '/api/s/{query}',
                 }
             });
+          // Trigger full search on Enter
+        $('.ui.search input').on('keydown', function(e) {
+            if (e.key === 'Enter') {
+            const query = $(this).val().trim();
+            if (query.length >= 2) {
+                window.location.href = '/search/' + encodeURIComponent(query);
+            }
+        }
+    });
     </script>
 </body>
 
