@@ -3,7 +3,7 @@
 {% block head %}
     <title>{{ data.title }}</title>
     <meta name="title" content="{{ data.title }}">
-    <meta name="description" content="{{ data.meta | default: '' }}">
+    <meta name="description" content="{{ data.meta | default('') }}">
 {% endblock %}
 
 {% block content %}
