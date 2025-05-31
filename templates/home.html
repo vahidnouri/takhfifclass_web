@@ -54,9 +54,6 @@
                 <a class="image" href="/{{ cat.name }}">
                     <img class="ui medium circular image" src="{{ url_for('static', filename='images/' ~ cat.image) }}" alt="{{ cat.title }}">
                 </a>
-                <div class="content" style="text-align:center; margin-top: 0.5em;">
-                    <a class="header" href="/{{ cat.name }}">{{ cat.title }}</a>
-                </div>
             </div>
             {% if loop.last %}</div>{% endif %}
         {% endfor %}
