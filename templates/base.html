@@ -194,7 +194,7 @@
                         {% endfor %}
                     </div>
                 </div>
-
+                
                 <a class="item" href="/">
                     <img class="ui mini image" src="/static/logo.png">
                     <!-- <i class="percent icon"></i> -->
@@ -202,6 +202,10 @@
                     <span style="font-weight: bold;">
                         تخفیف کلاس
                     </span>
+                </a>
+                <!-- About Us Link (middle) -->
+                <a class="item {{'active selected' if data.page == 'about' else ''}}" href="{{ url_for('about') }}" style="color:#fff !important;">
+                    درباره ما
                 </a>
             </div>
             <!-- CENTER MENU -->

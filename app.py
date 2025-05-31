@@ -35,6 +35,15 @@ app.jinja_env.filters.update(
 
 
 
+@app.route('/about')
+def about():
+    categories = Category.objects
+    category_menu = {i.title: i.name for i in categories}
+    data = {
+        'menu': category_menu,
+    }
+    return render_template('about.html', data=data)
+
 @app.get('/')
 @app.get('/<category>/')
 def courses(category=None):
