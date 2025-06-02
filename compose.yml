@@ -8,7 +8,7 @@ services:
       - FLASK_APP=app.py
       - FLASK_ENV=production
       - MONGODB_URI=mongodb://root:b2vFj15t5HsMJilIH39GKY4gPMYGpv@207.180.208.52:5921/scraped_data?authSource=admin
-      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+      - FLASK_SECRET_KEY=H8Gj34V@56!^6Bva0d&l
     volumes:
       - .:/app
     networks:
