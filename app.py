@@ -6,20 +6,24 @@ import re
 import markdown 
 from khayyam import JalaliDate
 from persian import convert_en_numbers
-from flask import Flask, render_template, request, send_from_directory, abort
+from flask import Flask, render_template, request, abort, redirect, url_for, flash
 from flask import jsonify
 from mongoengine.connection import get_db
 import os
 from extensions import cors, db
-from models import Course, Category, OptimizedCourse
+from models import Course, Category, OptimizedCourse, ContactMessages
+import os
+
 
 
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'fallback-secret')
 cors.init_app(app)
 db.init_app(app)
 
 db2 = get_db()
+contact_collection = ContactMessages.objects
 
 app.jinja_env.filters.update(
     persian=convert_en_numbers,
@@ -33,7 +37,32 @@ app.jinja_env.filters.update(
 # def favicon():
 #     return send_from_directory('static', 'favicon.png', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/contact', methods=['GET', 'POST'])
+def contact():
+    # Get course categories for the dropdown menu
+    categories = Category.objects
+    category_menu = {i.title: i.name for i in categories}
 
+    if request.method == 'POST':
+        # Create and save using MongoEngine
+        message = ContactMessages(
+            name=request.form['name'],
+            email=request.form['email'],
+            message=request.form['message'],
+            date=datetime.utcnow()
+        )
+        message.save()
+
+        flash('پیام شما با موفقیت ارسال شد. با تشکر!')
+        return redirect(url_for('contact'))
+
+    data = {
+        'menu': category_menu,
+        'page': 'contact',
+        'page_name': 'تماس با ما'
+    }
+
+    return render_template('contact.html', data=data)
 
 @app.route('/about')
 def about():

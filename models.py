@@ -83,3 +83,12 @@ class OptimizedCourse(Document):
             }
         ]
     }
+
+class ContactMessages(Document):
+    name = StringField()    # User's name
+    email = StringField()   # User's email
+    message = StringField() # User's message
+    date = DateTimeField()  # Date of message
+    meta = dict(
+        indexes=['name']
+    )
