@@ -1,5 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="message" style="margin-top: 6em; text-align: right;">
+      {% for message in messages %}
+        <p>{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 <div class="ui container" style="margin-top: 100px; direction: rtl; text-align: right;">
 
   <h2 class="ui teal header">تماس با ما</h2>
@@ -17,7 +26,10 @@
       <label>پیام شما</label>
       <textarea name="message" placeholder="پیام خود را اینجا بنویسید..." rows="5" required></textarea>
     </div>
+    <div class="ui center aligned container" style="margin-bottom: 5em;">
     <button class="ui teal button" type="submit">ارسال</button>
+</div>
+
   </form>
 
 </div>
