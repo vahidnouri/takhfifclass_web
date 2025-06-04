@@ -263,7 +263,8 @@ def full_results(query):
     #
     # Build pagination URLs
     page_urls = {}
-    for i in pages:
+    all_needed_pages = set(pages + [1, pages_count])  # include first and last pages
+    for i in all_needed_pages:
         query_params = {
             'page': i,
             'page_size': page_size,
