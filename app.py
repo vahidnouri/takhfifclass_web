@@ -1,5 +1,3 @@
-import csv
-import json
 from datetime import datetime
 from math import ceil
 import re
@@ -13,6 +11,7 @@ import os
 from extensions import cors, db
 from models import Course, Category, OptimizedCourse, ContactMessages
 import os
+from urllib.parse import urlencode, quote_plus
 
 
 
@@ -80,12 +79,25 @@ def courses(category=None):
     page_size = int(request.args.get('page_size', 20))
     search_query = request.args.get('q', '')
     #
-    filters = {'is_free': False}
+    # Base filters
+    filter_type = request.args.get('filter')  # Optional
+#
+    filters = {}
+    if filter_type == 'free':
+        filters['is_free'] = True
+    elif filter_type == 'discounted':
+        filters['is_free'] = False
+    elif filter_type == 'all':
+        pass  # No filter on 'is_free'
+    else:
+        filters['is_free'] = False  # Default fallback if not specified
+    
     if category:
         filters['category_English'] = category
     if search_query:
         filters = {'search_text__icontains': search_query}
         category = None
+
     #
     posts = Course.objects(**filters).order_by('-discount_percentage').skip(page_size*(page-1)).limit(page_size)
     count = Course.objects(**filters).count()
@@ -95,6 +107,23 @@ def courses(category=None):
     next_pages = list(range(page, pages_count+1))
     pages = previous_pages[-2:] + next_pages[:3]
     #
+    # ✅ Generate page_urls
+    base_args = {
+        'page_size': page_size,
+        'filter': filter_type or '',
+        'q': search_query
+    }
+    page_urls = {}
+    for p in pages + [1, pages_count]:  # Also add first/last
+        args = base_args.copy()
+        args['page'] = p
+        if category:
+            url_path = f"/{category}/"
+        else:
+            url_path = "/"
+        page_urls[p] = f"{url_path}?{urlencode(args)}"
+    
+    # Build category cards
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
     #
@@ -128,8 +157,10 @@ def courses(category=None):
         'category': category or '',
         'search_query': search_query,
         'page': 'home',
+        'filter': filter_type or '',  # Optional
         'menu': category_menu,
         "category_cards": category_cards,  # Pass image paths to template
+        'page_urls': page_urls,  # ✅ pass page_urls to template
     }
     return render_template('home.html', data=data)
 
@@ -230,6 +261,15 @@ def full_results(query):
     next_pages = list(range(page, pages_count+1))
     pages = previous_pages[-2:] + next_pages[:3]
     #
+    # Build pagination URLs
+    page_urls = {}
+    for i in pages:
+        query_params = {
+            'page': i,
+            'page_size': page_size,
+        }
+        # urlencode escapes the values correctly
+        page_urls[i] = url_for('full_results', query=quote_plus(query)) + '?' + urlencode(query_params)
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
 
@@ -240,8 +280,10 @@ def full_results(query):
         'pages': pages,
         'current_page': page,
         'last_page': pages_count,
+        'page_urls': page_urls,  # ✅ Add this line
     }
-    return render_template("search_results.html", courses=results, query=query, data=data)
+    return render_template("search_results.html", courses=posts, query=query, data=data)
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+
+if __name__ == '__main__':
+    app.run(debug=True)

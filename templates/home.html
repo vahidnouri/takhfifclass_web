@@ -63,33 +63,62 @@
 <!--  -->
 <!-- REVIEWS -->
 <div class="ui container">
+
+    <!-- Filter Form -->
+    <form method="get" action="{{ '/' + data.category + '/' if data.category else '/' }}" class="ui form" style="margin-bottom: 2em;">
+        <div class="inline fields">
+            <label>نوع کلاس مورد نظر:</label>
+            <div class="field">
+                <div class="ui radio checkbox">
+                    <input type="radio" name="filter" value="discounted" {% if data.filter == 'discounted' %}checked{% endif %}>
+                    <label>با تخفیف</label>
+                </div>
+            </div>
+            <div class="field">
+                <div class="ui radio checkbox">
+                    <input type="radio" name="filter" value="free" {% if data.filter == 'free' %}checked{% endif %}>
+                    <label>رایگان</label>
+                </div>
+            </div>
+            <div class="field">
+                <div class="ui radio checkbox">
+                    <input type="radio" name="filter" value="all" {% if data.filter == 'all' %}checked{% endif %}>
+                    <label>همه موارد</label>
+                </div>
+            </div>
+            <div class="field">
+                <button class="ui primary button" type="submit">اعمال</button>
+            </div>
+        </div>
+
+        <!-- Preserve query params -->
+        <input type="hidden" name="q" value="{{ data.search_query }}">
+        <input type="hidden" name="page_size" value="20">
+        <input type="hidden" name="page" value="1">  <!-- Reset to page 1 when filtering -->
+    </form>
+
+    <!-- Course Cards -->
     <div class="ui link stackable centered four cards">
         {% for i in data.posts %}
         <div class="ui raised link card">
-            <a class="image" href="/{{ i.website }}/{{ i.course_id }}/{{i.course_url_name}}">
+            <a class="image" href="/{{ i.website }}/{{ i.course_id }}/{{ i.course_url_name }}">
                 <img src="{{ i.img_url }}" alt="{{ i.title }}">
             </a>
             <div class="content">
                 <a class="header" href="/{{ i.website }}/{{ i.course_id }}/{{ i.course_url_name }}">{{ i.title }}</a>
-
                 <div class="meta">
                     <p>{{ i.website | persian_site }}</p>
                 </div>
                 <div class="description">
                     قیمت
                     &nbsp;
-                    {% if i.is_free %}                        
+                    {% if i.is_free %}
                         <p>رایگان</p>
                     {% elif i.has_discount %}
-                    <del>
-                        {{ i.main_price | persian_price}}
-                    </del>
-                    &nbsp;
-                    <strong>
-                        {{ i.discounted_price | persian_price}}
-                    </strong>
-                    &nbsp;
-                    تومان
+                        <del>{{ i.main_price | persian_price }}</del>
+                        &nbsp;
+                        <strong>{{ i.discounted_price | persian_price }}</strong>
+                        &nbsp;تومان
                     {% else %}
                         <p>منقضی شده</p>
                     {% endif %}
@@ -107,11 +136,20 @@
         </div>
         {% endfor %}
     </div>
-    <!--  -->
+
+    <!-- Pagination -->
     <div style="padding: 2em 0 2em 0;">
-        {{ pagination(data.current_page, data.pages, data.last_page) }}
+        {{ pagination(data.current_page, data.pages, data.last_page, data.page_urls) }}
+        
     </div>
+
 </div>
+
+<!-- Fomantic Checkbox Init -->
+<script>
+  $('.ui.radio.checkbox').checkbox();
+</script>
+
 <!--  -->
 <script>
     $(".masthead").visibility({
