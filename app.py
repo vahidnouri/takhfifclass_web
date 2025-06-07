@@ -330,5 +330,5 @@ def full_results(query):
     return render_template("search_results.html", courses=posts, query=query, data=data)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
