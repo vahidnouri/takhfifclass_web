@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import ceil
 import re
 import markdown 
 from khayyam import JalaliDate
 from persian import convert_en_numbers
 from flask import Flask, render_template, request, abort, redirect, url_for, flash
-from flask import jsonify
+from flask import jsonify, Response
 from mongoengine.connection import get_db
 import os
 from extensions import cors, db
@@ -28,13 +28,57 @@ app.jinja_env.filters.update(
     persian=convert_en_numbers,
     persian_price=lambda x: convert_en_numbers(f'{x:,}'),
     persian_date=lambda x: convert_en_numbers(JalaliDate(x).strftime('%d %B %Y')),
-    persian_site=lambda x: {'Limoonad': 'لیموناد', 'Maktabkhooneh': 'مکتبخونه'}.get(x, x)
+    persian_site=lambda x: {'limoonad': 'لیموناد', 'Limoonad': 'لیموناد', 'maktabkhooneh': 'مکتبخونه', 'Maktabkhooneh': 'مکتبخونه'}.get(x, x)
 ,
 )
 
-# @app.get('/favicon.ico')
-# def favicon():
-#     return send_from_directory('static', 'favicon.png', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/sitemap.xml', methods=['GET'])
+def sitemap():
+
+    
+    pages = []
+
+    ten_days_ago = (datetime.now() - timedelta(days=10)).date().isoformat()
+
+    # Home page
+    pages.append({
+        'loc': url_for('home', _external=True),
+        'changefreq': 'daily',
+        'priority': '1.0'
+    })
+
+    # Category pages (from your DB)
+    categories = Category.objects.only('name')
+    for cat in categories:
+        pages.append({
+            'loc': url_for('home', category=cat.name, _external=True),
+            'changefreq': 'weekly',
+            'priority': '0.8'
+        })
+
+    # ✅ Add course detail pages here
+    # Get only top 1000 most important courses (e.g., highest discount or recently added)
+    courses = Course.objects.order_by('-discount_percentage').only('course_id', 'website', 'course_url_name')[:1000]
+    for course in courses:
+        pages.append({
+            'loc': url_for('course', website=course.website, course_id=course.course_id, course_url_name=course.course_url_name, _external=True),
+            'changefreq': 'weekly',
+            'priority': '0.6'
+        })
+
+    # Generate XML
+    sitemap_xml = render_template('sitemap.xml', pages=pages)
+    return Response(sitemap_xml, mimetype='application/xml')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    categories = Category.objects
+    category_menu = {i.title: i.name for i in categories}
+    data = {
+        'menu': category_menu,
+    }
+    return render_template('404.html', data=data), 404
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
@@ -74,7 +118,7 @@ def about():
 
 @app.get('/')
 @app.get('/<category>/')
-def courses(category=None):
+def home(category=None):
     page = int(request.args.get('page', 1))
     page_size = int(request.args.get('page_size', 20))
     search_query = request.args.get('q', '')
@@ -168,7 +212,7 @@ def courses(category=None):
 @app.get('/<website>/<course_id>/')
 @app.get('/<website>/<course_id>')
 @app.get('/<website>/<course_id>/<course_url_name>')
-def home(website, course_id, course_url_name=None):
+def course(website, course_id, course_url_name=None):
     course = Course.objects(course_id=course_id, website=website).first()
     new_desc = OptimizedCourse.objects(course_id=course_id, website=website).first()
     

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .centered-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+  }
+
+  .teal-text {
+    color: teal;
+    font-weight: bold;
+    font-size: 28px;
+    padding: 20px;
+    margin: 20px;
+  }
+</style>
+
+<div class="centered-container">
+  <div>
+    <h1 class="teal-text">404 - صفحه پیدا نشد</h1>
+    <p class="teal-text">
+      متأسفیم، صفحه‌ای که به دنبال آن بودید وجود ندارد یا ممکن است جابه‌جا شده باشد.
+    </p>
+    <a href="/" class="ui teal button">بازگشت به خانه</a>
+  </div>
+</div>
+{% endblock %}

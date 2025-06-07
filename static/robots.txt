@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /static/
+Disallow: /search/
+Disallow: /admin/
+Disallow: /test/
+Crawl-delay: 10
+
+Sitemap: https://takhfifclass.ir/sitemap.xml

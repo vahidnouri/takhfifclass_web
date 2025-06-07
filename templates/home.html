@@ -2,8 +2,22 @@
 {% from "macro/pagination.html" import pagination %}
 
 <!--  -->
-
 {% block head %}
+<style>
+.category-label-mobile {
+    display: none;
+}
+
+
+@media only screen and (max-width: 767px) {
+    .category-label-mobile {
+        display: block !important;
+    }
+    .category-label-mobile a.header {
+        color: white !important;
+    }
+}
+</style>
 <title>تخفیف کلاس</title>
 <meta name="description" content="" />
 <meta name="keywords" content="{{ data.keywords| join(',')}}" />
@@ -52,8 +66,11 @@
             {% endif %}
             <div class="three wide column" style="display: flex; flex-direction: column; align-items: center;">
                 <a class="image" href="/{{ cat.name }}">
-                    <img class="ui medium circular image" src="{{ url_for('static', filename='images/' ~ cat.image) }}" alt="{{ cat.title }}">
+                    <img class="ui circular image category-icon" src="{{ url_for('static', filename='images/' ~ cat.image) }}" alt="{{ cat.title }}">
                 </a>
+                <div class="category-label-mobile" style="text-align:center; margin-top: 0.5em; display:none;">
+                    <a class="header" href="/{{ cat.name }}">{{ cat.title }}</a>
+                </div>                
             </div>
             {% if loop.last %}</div>{% endif %}
         {% endfor %}

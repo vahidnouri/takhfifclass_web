@@ -173,7 +173,7 @@
     </style>
     <meta charset="utf-8" />
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2, user-scalable=yes" />
     {% block head %}{% endblock %}
 </head>
 
@@ -230,7 +230,6 @@
     <!-- Footer -->
     <div class="ui inverted vertical teal footer segment" dir="rtl">
     <div class="ui stackable grid container" style="padding-top: 2em; padding-bottom: 2em;">
-
         <div class="six wide column">
         <h4 class="ui inverted header"> تخفیف کلاس</h4>
         <p style="line-height: 1.8; text-align: justify;">
@@ -260,7 +259,9 @@
     <!-- Script -->
     <script>
         $('.ui.dropdown').dropdown();
+        {% if data.tab %}
         $('.menu .item').tab('change tab', '{{ data.tab }}');
+        {% endif %}
         $(".masthead").visibility({
             once: false,
             onBottomPassed: function () {
