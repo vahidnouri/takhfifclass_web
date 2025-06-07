@@ -32,6 +32,9 @@ app.jinja_env.filters.update(
 ,
 )
 
+@app.route('/robots.txt')
+def robots_txt():
+    return app.send_static_file('robots.txt')
 
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
