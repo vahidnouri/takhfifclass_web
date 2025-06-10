@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from math import ceil
 import re
 import markdown 
-from khayyam import JalaliDate
 from persian import convert_en_numbers
 from flask import Flask, render_template, request, abort, redirect, url_for, flash
 from flask import jsonify, Response
@@ -12,6 +11,7 @@ from extensions import cors, db
 from models import Course, Category, OptimizedCourse, ContactMessages
 import os
 from urllib.parse import urlencode, quote_plus
+from persiantools.jdatetime import JalaliDateTime
 
 
 
@@ -27,7 +27,7 @@ contact_collection = ContactMessages.objects
 app.jinja_env.filters.update(
     persian=convert_en_numbers,
     persian_price=lambda x: convert_en_numbers(f'{x:,}'),
-    persian_date=lambda x: convert_en_numbers(JalaliDate(x).strftime('%d %B %Y')),
+    persian_date=lambda x: convert_en_numbers(JalaliDateTime(x).strftime('%d %B %Y')),
     persian_site=lambda x: {'limoonad': 'لیموناد', 'Limoonad': 'لیموناد', 'maktabkhooneh': 'مکتبخونه', 'Maktabkhooneh': 'مکتبخونه'}.get(x, x)
 ,
 )
@@ -41,8 +41,6 @@ def sitemap():
 
     
     pages = []
-
-    ten_days_ago = (datetime.now() - timedelta(days=10)).date().isoformat()
 
     # Home page
     pages.append({
