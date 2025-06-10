@@ -12,8 +12,6 @@ from extensions import cors, db
 from models import Course, Category, OptimizedCourse, ContactMessages
 import os
 from urllib.parse import urlencode, quote_plus
-from persiantools.jdatetime import JalaliDateTime
-from zoneinfo import ZoneInfo
 
 
 
@@ -25,25 +23,6 @@ db.init_app(app)
 
 db2 = get_db()
 contact_collection = ContactMessages.objects
-
-# Persian month names
-PERSIAN_MONTHS = [
-    "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-    "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
-]
-# Custom Persian date formatter
-def format_persian_date(dt):
-    # Ensure datetime is timezone-aware in UTC
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=ZoneInfo("UTC"))
-
-    # Convert to Tehran time
-    dt_tehran = dt.astimezone(ZoneInfo("Asia/Tehran"))
-
-    # Convert to Jalali
-    jdt = JalaliDateTime(dt_tehran)
-    month = PERSIAN_MONTHS[jdt.month - 1]
-    return f"{jdt.day} {month} {jdt.year}"
 
 app.jinja_env.filters.update(
     persian=convert_en_numbers,
