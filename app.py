@@ -12,7 +12,7 @@ from extensions import cors, db
 from models import Course, Category, OptimizedCourse, ContactMessages
 import os
 from urllib.parse import urlencode, quote_plus
-from persiantools.jdatetime import JalaliDateTime
+
 
 
 app = Flask(__name__)
@@ -24,22 +24,10 @@ db.init_app(app)
 db2 = get_db()
 contact_collection = ContactMessages.objects
 
-# Persian names for months
-PERSIAN_MONTHS = [
-    "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-    "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
-]
-
-# Custom date formatting function
-def format_persian_date(dt):
-    jdt = JalaliDateTime(dt)
-    month = PERSIAN_MONTHS[jdt.month - 1]
-    return f"{jdt.day} {month} {jdt.year}"
-
 app.jinja_env.filters.update(
     persian=convert_en_numbers,
     persian_price=lambda x: convert_en_numbers(f'{x:,}'),
-    persian_date=lambda x: convert_en_numbers(format_persian_date(x)),
+    persian_date=lambda x: convert_en_numbers(JalaliDate(x).strftime('%d %B %Y')),
     persian_site=lambda x: {'limoonad': 'لیموناد', 'Limoonad': 'لیموناد', 'maktabkhooneh': 'مکتبخونه', 'Maktabkhooneh': 'مکتبخونه'}.get(x, x)
 ,
 )
@@ -345,5 +333,5 @@ def full_results(query):
     return render_template("search_results.html", courses=posts, query=query, data=data)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
