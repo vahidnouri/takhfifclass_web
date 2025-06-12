@@ -14,7 +14,7 @@
         </div>
 
         <div class="">
-            <a href={{data.class_link}} class="ui fluid teal button" style="margin: 2em 0 2em 0;" target="_blank">ثبت نام در کلاس</a>        
+            <a href={{data.class_link}} class="ui teal fluid button" id="course-reg-btn" style="margin: 2em 0 2em 0;" target="_blank">ثبت نام در کلاس</a>        
             <div id="description"></div>
         
             <!-- Short preview (first 300 characters, or whatever limit you prefer) -->
@@ -30,7 +30,7 @@
                     <strong> {{ data.cta.strip('\"') | safe }} </strong>
                     <br>
                     <br>
-                    <a href={{data.class_link}} class="ui teal fluid button" target="_blank">ثبت نام در کلاس</a>
+                    <a href={{data.class_link}} class="ui teal fluid button" id="course-reg-btn" target="_blank">ثبت نام در کلاس</a>
                     <br>
                     <div style="text-align: center;">
                         <button class="ui tertiary teal button" id="toggle-btn-hide" onclick="toggleDescription(event)">مخفی کردن</button>

@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from math import ceil
 import re
 import markdown 
-from khayyam import JalaliDate
 from persian import convert_en_numbers
 from flask import Flask, render_template, request, abort, redirect, url_for, flash
 from flask import jsonify, Response
@@ -14,7 +13,7 @@ import os
 from urllib.parse import urlencode, quote_plus
 from persiantools.jdatetime import JalaliDateTime
 from zoneinfo import ZoneInfo
-
+from flask import redirect
 
 
 # Persian month names
@@ -339,7 +338,7 @@ def full_results(query):
             'page_size': page_size,
         }
         # urlencode escapes the values correctly
-        page_urls[i] = url_for('full_results', query=quote_plus(query)) + '?' + urlencode(query_params)
+        page_urls[i] = url_for('full_results', query=query, **query_params)
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
 
