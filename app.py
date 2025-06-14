@@ -155,8 +155,10 @@ def home(category=None):
         filters['is_free'] = True
     elif filter_type == 'discounted':
         filters['is_free'] = False
+    elif filter_type == 'certificate':
+        filters['certificate'] = True
     elif filter_type == 'all':
-        pass  # No filter on 'is_free'
+        pass
     else:
         filters['is_free'] = False  # Default fallback if not specified
     
@@ -270,6 +272,7 @@ def course(website, course_id, course_url_name=None):
             'class_link': course.affiliate_link,
             'course_name': course.course_url_name,
             'related_courses': related_courses,
+            'certificate': course.certificate,
             'cta': cta,
             'meta': meta,
             'menu': category_menu,
@@ -354,5 +357,5 @@ def full_results(query):
     return render_template("search_results.html", courses=posts, query=query, data=data)
 
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)

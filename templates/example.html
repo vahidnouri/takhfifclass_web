@@ -12,6 +12,11 @@
         <div class="ui main text container">
             <h1 class="ui header" dir ="rtl">{{data.title}}</h1>
         </div>
+        <div class="certificate">
+            {% if data.certificate %}
+                <span>📜 این دوره دارای گواهینامه پایان دوره است</span>
+            {% endif %}
+        </div>
 
         <div class="">
             <a href={{data.class_link}} class="ui teal fluid button" id="course-reg-btn" style="margin: 2em 0 2em 0;" target="_blank">ثبت نام در کلاس</a>        

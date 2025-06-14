@@ -99,6 +99,12 @@
             </div>
             <div class="field">
                 <div class="ui radio checkbox">
+                    <input type="radio" name="filter" value="certificate" {% if data.filter == 'certificate' %}checked{% endif %}>
+                    <label>دارای گواهینامه</label>
+                </div>
+            </div>
+            <div class="field">
+                <div class="ui radio checkbox">
                     <input type="radio" name="filter" value="all" {% if data.filter == 'all' %}checked{% endif %}>
                     <label>همه موارد</label>
                 </div>
@@ -125,6 +131,11 @@
                 <a class="header" href="/{{ i.website }}/{{ i.course_id }}/{{ i.course_url_name }}">{{ i.title }}</a>
                 <div class="meta">
                     <p>{{ i.website | persian_site }}</p>
+                </div>
+                <div class="certificate">
+                    {% if i.certificate %}
+                        <span>📜دریافت گواهینامه</span>
+                    {% endif %}
                 </div>
                 <div class="description">
                     قیمت
