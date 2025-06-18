@@ -4,6 +4,7 @@ services:
     build: .
     ports:
       - "5111:5000"
+    restart: unless-stopped
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=production

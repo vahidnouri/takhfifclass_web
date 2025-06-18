@@ -284,22 +284,41 @@ def course(website, course_id, course_url_name=None):
 def search(query):
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
 
-    results = Course.objects.filter(
+    # 1. Search in Course collection
+    course_results = Course.objects.filter(
         __raw__={
             "$or": [
                 {"title": regex},
                 {"tags": regex},
                 {"category_1": regex},
-                {"description": regex},
             ]
         }
     )
 
+    # 2. Search in OptimizedCourse collection
+    desc_matches = OptimizedCourse.objects.filter(
+        new_description=regex
+    )
+
+    # Build a set of (course_id, website) from matching descriptions
+    matched_ids = set((desc.course_id, desc.website) for desc in desc_matches)
+
+    # 3. Filter additional courses based on matching descriptions
+    extra_courses = Course.objects.filter(
+        __raw__={"$or": [
+            {"course_id": cid, "website": site} for cid, site in matched_ids
+        ]}
+    )
+
+    # 4. Combine and deduplicate results
+    all_courses = { (c.course_id, c.website): c for c in list(course_results) + list(extra_courses) }
+
+    # 5. Build response
     response = []
-    for course in results:
+    for (cid, site), course in all_courses.items():
         response.append({
             "title": course.title,
-            "description": course.category_1,
+            # "description": course.category_1,  # or just an empty string if you want
             "url": f"/{course.website}/{course.course_id}/",
         })
 
@@ -310,41 +329,72 @@ def search(query):
 @app.route('/search/<query>')
 def full_results(query):
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
-    results = Course.objects.filter(
+
+    # 1. Search in Course collection
+    course_results = Course.objects.filter(
         __raw__={
             "$or": [
                 {"title": regex},
                 {"tags": regex},
                 {"Teacher": regex},
                 {"category_1": regex},
-                {"description": regex},
             ]
         }
     )
+
+    # 2. Search in OptimizedCourse (only if first 1000 words match)
+    matched_ids = set()
+    desc_matches = OptimizedCourse.objects.only('course_id', 'website', 'new_description', 'short_description')
+    for desc in desc_matches:
+        if regex.search(desc.short_description):
+            matched_ids.add((desc.course_id, desc.website))
+
+    # 3. Additional courses based on matching descriptions
+    if matched_ids:
+        or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
+        if or_conditions:
+            extra_courses = Course.objects.filter(__raw__={"$or": or_conditions})
+        else:
+            extra_courses = []
+    else:
+        extra_courses = []
+
+    # 4. Combine and deduplicate courses
+    combined = list(course_results) + list(extra_courses)
+    unique_courses = {}
+    for c in combined:
+        key = (c.course_id, c.website)
+        if key not in unique_courses:
+            unique_courses[key] = c
+
+    # 5. Pagination
+    all_courses = list(unique_courses.values())
+    count = len(all_courses)
     page = int(request.args.get('page', 1))
     page_size = int(request.args.get('page_size', 20))
-    #
-    posts = results.order_by('-discount_percentage').skip(page_size*(page-1)).limit(page_size)
-    count = results.count()
-    #
     pages_count = ceil(count / page_size)
+
+    # Sort and slice
+    sorted_courses = sorted(all_courses, key=lambda x: x.discount_percentage or 0, reverse=True)
+    posts = sorted_courses[(page - 1) * page_size: page * page_size]
+
+    # Pagination UI
     previous_pages = list(range(1, page))
-    next_pages = list(range(page, pages_count+1))
+    next_pages = list(range(page, pages_count + 1))
     pages = previous_pages[-2:] + next_pages[:3]
-    #
+
     # Build pagination URLs
     page_urls = {}
-    all_needed_pages = set(pages + [1, pages_count])  # include first and last pages
+    all_needed_pages = set(pages + [1, pages_count])
     for i in all_needed_pages:
-        query_params = {
-            'page': i,
-            'page_size': page_size,
-        }
-        # urlencode escapes the values correctly
+        query_params = {'page': i, 'page_size': page_size}
         page_urls[i] = url_for('full_results', query=query, **query_params)
+
+    # Category menu
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
 
+    # Final context data
     data = {
         'keywords': [query],
         'menu': category_menu,
@@ -352,9 +402,11 @@ def full_results(query):
         'pages': pages,
         'current_page': page,
         'last_page': pages_count,
-        'page_urls': page_urls,  # ✅ Add this line
+        'page_urls': page_urls,
     }
+
     return render_template("search_results.html", courses=posts, query=query, data=data)
+
 
 
 if __name__ == '__main__':

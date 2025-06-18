@@ -63,6 +63,7 @@ class OptimizedCourse(Document):
     website = StringField(required=True)
     original_description = StringField(required=True)
     new_description = StringField(required=True)
+    short_description = StringField()
     is_generated = BooleanField(default=True)
     generated_at = DateTimeField()
     cta = StringField()
