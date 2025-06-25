@@ -22,7 +22,7 @@ class Course(Document):
     category_3 = StringField()
     website = StringField()
     affiliate_link = StringField()
-    description = StringField()       # A compelete Markdown based description with a combination of Summary, Seasons, about, chapters and certificate    
+    description = StringField()       # A compelete Markdown based description with a combination of Summary, Seasons, about, chapters and certificate
     short_url = StringField()
     course_time = StringField()
     course_url_name = StringField()   # Just name of course URL
@@ -34,8 +34,8 @@ class Course(Document):
     search_text = StringField()
     meta = dict(
         indexes=[
-            'title', 'date', 'main_price', 
-            'discount_percentage', 'is_free', 
+            'title', 'date', 'main_price',
+            'discount_percentage', 'is_free',
             'category_1', 'website', 'Teacher', 'tag', 'category_English',
             {
             'fields': ['$title', '$tag', '$category_1', '$Teacher'],
@@ -50,6 +50,37 @@ class Course(Document):
         ]
     )
 
+class Course_prime(Document):
+    course_id = StringField()
+    title = StringField()
+    datetime = DateTimeField()
+    teacher = StringField()
+    main_price = IntField()
+    discounted_price = IntField()
+    discount_percentage = IntField()
+    has_discount = BooleanField()
+    img_url = StringField()
+    course_url = StringField()
+    duration = StringField()
+    category = StringField()
+    website = StringField()
+    affiliate_link = StringField()
+    description = StringField()
+    summary = StringField()
+    seasons = StringField()
+    shamsi_date = StringField()
+    course_url_name = StringField()
+    rephrased_desc = StringField()
+    is_free = BooleanField()
+    search_text = StringField()
+
+    meta = dict(
+        indexes=[
+            'title', 'datetime', 'main_price',
+            'discount_percentage', 'is_free',
+            'category', 'website'
+        ]
+    )
 
 class Category(Document):
     name = StringField()    # English name of category
@@ -93,3 +124,8 @@ class ContactMessages(Document):
     meta = dict(
         indexes=['name']
     )
+
+class Config(Document):
+    course_source = StringField(default='Course')
+
+    meta = dict()

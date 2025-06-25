@@ -1,14 +1,14 @@
 from datetime import datetime, timedelta
 from math import ceil
 import re
-import markdown 
+import markdown
 from persian import convert_en_numbers
 from flask import Flask, render_template, request, abort, redirect, url_for, flash
 from flask import jsonify, Response
 from mongoengine.connection import get_db
 import os
 from extensions import cors, db
-from models import Course, Category, OptimizedCourse, ContactMessages
+from models import Course, Category, OptimizedCourse, ContactMessages, Course_prime, Config
 import os
 from urllib.parse import urlencode, quote_plus
 from persiantools.jdatetime import JalaliDateTime
@@ -29,6 +29,16 @@ db.init_app(app)
 
 db2 = get_db()
 contact_collection = ContactMessages.objects
+
+def get_course_class():
+    config = Config.objects.first()
+    match config.course_source:
+        case 'Course' | 'course':
+            return Course
+        case 'Course_prime' | 'course_prime':
+            return Course_prime
+        case _:
+            return Course
 
 # Custom Persian date formatter
 def format_persian_date(dt):
@@ -60,7 +70,7 @@ def robots_txt():
 @app.route('/sitemap.xml', methods=['GET'])
 def sitemap():
 
-    
+
     pages = []
 
     ten_days_ago = (datetime.now() - timedelta(days=10)).date().isoformat()
@@ -83,7 +93,8 @@ def sitemap():
 
     # ✅ Add course detail pages here
     # Get only top 1000 most important courses (e.g., highest discount or recently added)
-    courses = Course.objects.order_by('-discount_percentage').only('course_id', 'website', 'course_url_name')[:1000]
+    course_class = get_course_class()
+    courses = course_class.objects.order_by('-discount_percentage').only('course_id', 'website', 'course_url_name')[:1000]
     for course in courses:
         pages.append({
             'loc': url_for('course', website=course.website, course_id=course.course_id, course_url_name=course.course_url_name, _external=True),
@@ -161,7 +172,7 @@ def home(category=None):
         pass
     else:
         filters['is_free'] = False  # Default fallback if not specified
-    
+
     if category:
         filters['category_English'] = category
     if search_query:
@@ -169,8 +180,9 @@ def home(category=None):
         category = None
 
     #
-    posts = Course.objects(**filters).order_by('-discount_percentage').skip(page_size*(page-1)).limit(page_size)
-    count = Course.objects(**filters).count()
+    course_class = get_course_class()
+    posts = course_class.objects(**filters).order_by('-discount_percentage').skip(page_size*(page-1)).limit(page_size)
+    count = course_class.objects(**filters).count()
     #
     pages_count = ceil(count / page_size)
     previous_pages = list(range(1, page))
@@ -192,7 +204,7 @@ def home(category=None):
         else:
             url_path = "/"
         page_urls[p] = f"{url_path}?{urlencode(args)}"
-    
+
     # Build category cards
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
@@ -239,9 +251,10 @@ def home(category=None):
 @app.get('/<website>/<course_id>')
 @app.get('/<website>/<course_id>/<course_url_name>')
 def course(website, course_id, course_url_name=None):
-    course = Course.objects(course_id=course_id, website=website).first()
-    new_desc = OptimizedCourse.objects(course_id=course_id, website=website).first()
-    
+    course_class = get_course_class()
+    course = course_class.objects(course_id=course_id, website=website).first()
+    new_desc = Optimizedcourse_class.objects(course_id=course_id, website=website).first()
+
     if not course:
         abort(404, "چنین کلاسی یافت نشد.")
     # course.description_html = markdown.markdown(course.description)
@@ -250,7 +263,7 @@ def course(website, course_id, course_url_name=None):
     {"$sample": {"size": 3}}
     ]))
 
-    
+
     # Create preview safely from raw Markdown
     raw_description = new_desc.new_description if new_desc else course.description or ""
     cta = new_desc.cta if new_desc else "از لینک زیر ثبت نام کنید"
@@ -285,7 +298,8 @@ def search(query):
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
 
     # 1. Search in Course collection
-    course_results = Course.objects.filter(
+    course_class = get_course_class()
+    course_results = course_class.objects.filter(
         __raw__={
             "$or": [
                 {"title": regex},
@@ -296,7 +310,7 @@ def search(query):
     )
 
     # 2. Search in OptimizedCourse collection
-    desc_matches = OptimizedCourse.objects.filter(
+    desc_matches = Optimizedcourse_class.objects.filter(
         new_description=regex
     )
 
@@ -304,7 +318,7 @@ def search(query):
     matched_ids = set((desc.course_id, desc.website) for desc in desc_matches)
 
     # 3. Filter additional courses based on matching descriptions
-    extra_courses = Course.objects.filter(
+    extra_courses = course_class.objects.filter(
         __raw__={"$or": [
             {"course_id": cid, "website": site} for cid, site in matched_ids
         ]}
@@ -331,7 +345,8 @@ def full_results(query):
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
 
     # 1. Search in Course collection
-    course_results = Course.objects.filter(
+    course_class = get_course_class()
+    course_results = course_class.objects.filter(
         __raw__={
             "$or": [
                 {"title": regex},
@@ -344,7 +359,7 @@ def full_results(query):
 
     # 2. Search in OptimizedCourse (only if first 1000 words match)
     matched_ids = set()
-    desc_matches = OptimizedCourse.objects.only('course_id', 'website', 'new_description', 'short_description')
+    desc_matches = Optimizedcourse_class.objects.only('course_id', 'website', 'new_description', 'short_description')
     for desc in desc_matches:
         if regex.search(desc.short_description):
             matched_ids.add((desc.course_id, desc.website))
@@ -353,7 +368,7 @@ def full_results(query):
     if matched_ids:
         or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
         if or_conditions:
-            extra_courses = Course.objects.filter(__raw__={"$or": or_conditions})
+            extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions})
         else:
             extra_courses = []
     else:
