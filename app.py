@@ -253,7 +253,7 @@ def home(category=None):
 def course(website, course_id, course_url_name=None):
     course_class = get_course_class()
     course = course_class.objects(course_id=course_id, website=website).first()
-    new_desc = Optimizedcourse_class.objects(course_id=course_id, website=website).first()
+    new_desc = OptimizedCourse.objects(course_id=course_id, website=website).first()
 
     if not course:
         abort(404, "چنین کلاسی یافت نشد.")
@@ -310,7 +310,7 @@ def search(query):
     )
 
     # 2. Search in OptimizedCourse collection
-    desc_matches = Optimizedcourse_class.objects.filter(
+    desc_matches = OptimizedCourse.objects.filter(
         new_description=regex
     )
 
@@ -359,7 +359,7 @@ def full_results(query):
 
     # 2. Search in OptimizedCourse (only if first 1000 words match)
     matched_ids = set()
-    desc_matches = Optimizedcourse_class.objects.only('course_id', 'website', 'new_description', 'short_description')
+    desc_matches = OptimizedCourse.objects.only('course_id', 'website', 'new_description', 'short_description')
     for desc in desc_matches:
         if regex.search(desc.short_description):
             matched_ids.add((desc.course_id, desc.website))
