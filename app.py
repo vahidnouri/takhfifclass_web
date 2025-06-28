@@ -355,7 +355,7 @@ def full_results(query):
     course_class = get_course_class()
     course_results = course_class.objects(
     __raw__={"$text": {"$search": query}}
-    ).only("title", "tag", "Teacher", "category_1", "date", "course_id", "website", "img_url", "discount_percentage", "main_price", "discounted_price", "affiliate_link", "certificate", "course_url_name").limit(20)
+    ).only("title", "tag", "Teacher", "category_1", "date", "course_id", "website", "img_url", "discount_percentage", "main_price", "discounted_price", "affiliate_link", "certificate", "course_url_name","is_free", "has_discount",).limit(20)
 
 
     # 2. Search in OptimizedCourse (only if first 1000 words match)
@@ -369,7 +369,7 @@ def full_results(query):
     if matched_ids:
         or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
         extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions}).only(
-    "title", "tag", "Teacher", "category_1", "date", "course_id", "website", "img_url", 
+    "title", "tag", "Teacher", "category_1", "date", "course_id", "website", "img_url", "is_free", "has_discount", 
     "discount_percentage", "main_price", "discounted_price", "affiliate_link", "certificate", "course_url_name"
 )
 
