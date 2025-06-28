@@ -14,6 +14,7 @@ from urllib.parse import urlencode, quote_plus
 from persiantools.jdatetime import JalaliDateTime
 from zoneinfo import ZoneInfo
 from flask import redirect
+import time
 
 
 # Persian month names
@@ -300,6 +301,7 @@ def course(website, course_id, course_url_name=None):
 
 @app.get('/api/s/<query>/')
 def search(query):
+    start = time.time()
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
 
     # 1. Search in Course collection
@@ -317,17 +319,16 @@ def search(query):
     # 2. Search in OptimizedCourse collection
     desc_matches = OptimizedCourse.objects.filter(
         new_description=regex
-    )
+    ).only('course_id', 'website')
 
     # Build a set of (course_id, website) from matching descriptions
     matched_ids = set((desc.course_id, desc.website) for desc in desc_matches)
 
-    # 3. Filter additional courses based on matching descriptions
-    extra_courses = course_class.objects.filter(
-        __raw__={"$or": [
-            {"course_id": cid, "website": site} for cid, site in matched_ids
-        ]}
-    )
+    # 3. Query courses by matched_ids in chunks if big
+    extra_courses = []
+    if matched_ids:
+        or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
+        extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions})
 
     # 4. Combine and deduplicate results
     all_courses = { (c.course_id, c.website): c for c in list(course_results) + list(extra_courses) }
@@ -340,44 +341,34 @@ def search(query):
             # "description": course.category_1,  # or just an empty string if you want
             "url": f"/{course.website}/{course.course_id}/",
         })
-
+    print(f"Query time: {time.time() - start} seconds")
     return jsonify(response)
 
 
 
 @app.route('/search/<query>')
 def full_results(query):
+    start = time.time()
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
 
     # 1. Search in Course collection
     course_class = get_course_class()
-    course_results = course_class.objects.filter(
-        __raw__={
-            "$or": [
-                {"title": regex},
-                {"tags": regex},
-                {"Teacher": regex},
-                {"category_1": regex},
-            ]
-        }
-    )
+    course_results = course_class.objects(
+    __raw__={"$text": {"$search": query}}
+    ).only("title", "tag", "Teacher", "category_1", "date").limit(20)
+
 
     # 2. Search in OptimizedCourse (only if first 1000 words match)
     matched_ids = set()
-    desc_matches = OptimizedCourse.objects.only('course_id', 'website', 'new_description', 'short_description')
-    for desc in desc_matches:
-        if regex.search(desc.short_description):
-            matched_ids.add((desc.course_id, desc.website))
+    # desc_matches = OptimizedCourse.objects.only('course_id', 'website', 'new_description', 'short_description')
+    desc_matches = OptimizedCourse.objects.filter(short_description=regex).only('course_id', 'website')
+    matched_ids = set((d.course_id, d.website) for d in desc_matches)
 
     # 3. Additional courses based on matching descriptions
+    extra_courses = []
     if matched_ids:
         or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
-        if or_conditions:
-            extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions})
-        else:
-            extra_courses = []
-    else:
-        extra_courses = []
+        extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions})
 
     # 4. Combine and deduplicate courses
     combined = list(course_results) + list(extra_courses)
@@ -424,6 +415,7 @@ def full_results(query):
         'last_page': pages_count,
         'page_urls': page_urls,
     }
+    print(f"Query time: {time.time() - start} seconds")
 
     return render_template("search_results.html", courses=posts, query=query, data=data)
 
