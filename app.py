@@ -30,6 +30,11 @@ db.init_app(app)
 db2 = get_db()
 contact_collection = ContactMessages.objects
 
+@app.route('/.well-known/traffic-advice')
+def traffic_advice():
+    # Return empty 200 response or 404 if you want to indicate no advice
+    return '', 200
+
 def get_course_class():
     config = Config.objects.first()
     match config.course_source:
