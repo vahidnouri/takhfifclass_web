@@ -106,13 +106,7 @@ class OptimizedCourse(Document):
             {'fields': ['course_id', 'website'], 'unique': True},
             'is_generated',
             '-generated_at',  # Descending index for sorting
-            {
-                'fields': ['$new_description'],
-                'default_language': 'none',
-                'weights': {
-                    'new_description': 1
-                }
-            }
+            'short_description' 
         ]
     }
 

@@ -25,6 +25,7 @@ PERSIAN_MONTHS = [
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'fallback-secret')
+app.url_map.strict_slashes = False
 cors.init_app(app)
 db.init_app(app)
 
@@ -304,45 +305,42 @@ def search(query):
     start = time.time()
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
 
-    # 1. Search in Course collection
+    # 1. Get course class and initial search by $text (Mongo uses $text only if index exists)
     course_class = get_course_class()
-    course_results = course_class.objects.filter(
-        __raw__={
-            "$or": [
-                {"title": regex},
-                {"tags": regex},
-                {"category_1": regex},
-            ]
-        }
-    )
+    course_results = course_class.objects(
+        __raw__={"$text": {"$search": query}}
+    ).only("title", "course_id", "website").limit(20)
 
-    # 2. Search in OptimizedCourse collection
+    # 2. Match descriptions via regex from OptimizedCourse
     desc_matches = OptimizedCourse.objects.filter(
-        new_description=regex
+        short_description=regex
     ).only('course_id', 'website')
 
-    # Build a set of (course_id, website) from matching descriptions
     matched_ids = set((desc.course_id, desc.website) for desc in desc_matches)
 
-    # 3. Query courses by matched_ids in chunks if big
+    # 3. Fetch extra courses based on matched_ids
     extra_courses = []
     if matched_ids:
         or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
-        extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions})
+        extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions}).only("title", "course_id", "website")
 
     # 4. Combine and deduplicate results
-    all_courses = { (c.course_id, c.website): c for c in list(course_results) + list(extra_courses) }
+    combined = list(course_results) + list(extra_courses)
+    unique_courses = {}
+    for c in combined:
+        key = (c.course_id, c.website)
+        if key not in unique_courses:
+            unique_courses[key] = c
 
-    # 5. Build response
-    response = []
-    for (cid, site), course in all_courses.items():
-        response.append({
-            "title": course.title,
-            # "description": course.category_1,  # or just an empty string if you want
-            "url": f"/{course.website}/{course.course_id}/",
-        })
-    print(f"Query time: {time.time() - start} seconds")
+    # 5. Build JSON response
+    response = [{
+        "title": c.title,
+        "url": f"/{c.website}/{c.course_id}/"
+    } for c in unique_courses.values()]
+
+    print(f"Query time: {time.time() - start:.2f} seconds")
     return jsonify(response)
+
 
 
 
@@ -355,7 +353,7 @@ def full_results(query):
     course_class = get_course_class()
     course_results = course_class.objects(
     __raw__={"$text": {"$search": query}}
-    ).only("title", "tag", "Teacher", "category_1", "date", "course_id", "website", "img_url", "discount_percentage", "main_price", "discounted_price", "affiliate_link", "certificate", "course_url_name","is_free", "has_discount",).limit(20)
+    ).only("title", "tag", "Teacher", "category_1", "date", "course_id", "website", "img_url", "discount_percentage", "main_price", "discounted_price", "affiliate_link", "certificate", "course_url_name","is_free", "has_discount").limit(20)
 
 
     # 2. Search in OptimizedCourse (only if first 1000 words match)
