@@ -25,7 +25,7 @@ PERSIAN_MONTHS = [
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'fallback-secret')
-app.url_map.strict_slashes = False
+# app.url_map.strict_slashes = False
 cors.init_app(app)
 db.init_app(app)
 
@@ -301,6 +301,7 @@ def course(website, course_id, course_url_name=None):
 
 
 @app.get('/api/s/<query>/')
+@app.get('/api/s/<query>')
 def search(query):
     start = time.time()
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
