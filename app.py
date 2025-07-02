@@ -3,7 +3,7 @@ from math import ceil
 import re
 import markdown
 from persian import convert_en_numbers
-from flask import Flask, render_template, request, abort, redirect, url_for, flash
+from flask import Flask, render_template, request, abort, redirect, url_for, flash, send_from_directory
 from flask import jsonify, Response
 from mongoengine.connection import get_db
 import os
@@ -31,6 +31,12 @@ db.init_app(app)
 
 db2 = get_db()
 contact_collection = ContactMessages.objects
+
+@app.route('/favicon.ico')
+@app.route('/favicon.ico/')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.png', mimetype='image/x-icon')
 
 @app.route('/.well-known/traffic-advice')
 def traffic_advice():
