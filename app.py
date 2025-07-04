@@ -36,7 +36,7 @@ contact_collection = ContactMessages.objects
 @app.route('/favicon.ico/')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.png', mimetype='image/x-icon')
+                               'favicon.ico', mimetype='image/x-icon')
 
 @app.route('/.well-known/traffic-advice')
 def traffic_advice():
