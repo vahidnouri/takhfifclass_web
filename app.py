@@ -194,7 +194,7 @@ def home(category=None):
 
     #
     course_class = get_course_class()
-    posts = course_class.objects(**filters).order_by('-discount_percentage').skip(page_size*(page-1)).limit(page_size)
+    posts = course_class.objects(**filters).order_by('-discount_percentage', 'id').skip(page_size*(page-1)).limit(page_size)
     count = course_class.objects(**filters).count()
     #
     pages_count = ceil(count / page_size)
