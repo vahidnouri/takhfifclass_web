@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html dir="rtl">
-
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.9.4/dist/semantic.min.css">
     <link rel="icon" href="/static/favicon.png" type="image/png">
@@ -158,17 +157,17 @@
             background-color: #f8ff9c !important;
             /* background-color: #8bf7f2 !important; */
         }
-
+        /* UPDATED: primary teal for the menu and footer */
         .teal_menu {
-            background-color: #00b5ad !important;
+            background-color: #008080 !important; /* A slightly deeper teal */
         }
-
+        /* UPDATED: changed light background to a soft cream */
         .light {
-            background-color: #dbfaf9 !important;
+            background-color: #F5F5DC !important;
         }
-
+        /* UPDATED: changed black text to a dark charcoal for a softer look */
         .black {
-            color: #333 !important;
+            color: #2F4F4F !important;
         }
     </style>
     <meta charset="utf-8" />
@@ -178,7 +177,7 @@
 </head>
 
 <body class="light">
-    <div class="ui inverted large top fixed borderless teal menu {{'hidden' if data.page in ['home','f'] else ''}}">
+    <div class="ui inverted large top fixed borderless teal_menu menu {{'hidden' if data.page in ['home','f'] else ''}}">
         <div class="ui container">
             <!-- RIGHT MENU -->
             <div class="right menu">
@@ -197,14 +196,12 @@
                 
                 <a class="item" href="/">
                     <img class="ui mini image" src="/static/logo.png">
-                    <!-- <i class="percent icon"></i> -->
                     &nbsp;&nbsp;
-                    <span style="font-weight: bold;">
+                    <span style="font-weight: bold; color: #FFD700 !important;">
                         تخفیف کلاس
                     </span>
                 </a>
-                <!-- About Us Link (middle) -->
-                <a class="item {{'active selected' if data.page == 'about' else ''}}" href="{{ url_for('about') }}" style="color:#fff !important;">
+                <a class="item {{'active selected' if data.page == 'about' else ''}}" href="{{ url_for('about') }}" style="color:#FFD700 !important;">
                     درباره ما
                 </a>
             </div>
@@ -227,36 +224,26 @@
 
     {% block content %}{% endblock %}
 
-    <!-- Footer -->
-    <div class="ui inverted vertical teal footer segment" dir="rtl">
-    <div class="ui stackable grid container" style="padding-top: 2em; padding-bottom: 2em;">
-        <div class="six wide column">
-        <h4 class="ui inverted header"> تخفیف کلاس</h4>
-        <p style="line-height: 1.8; text-align: justify;">
-            تخفیف کلاس، مرجع جدیدترین تخفیف‌های دوره‌های آموزشی آنلاین از معتبرترین وب‌سایت‌های ایرانی است. ما به شما کمک می‌کنیم تا آموزش‌های باکیفیت را با قیمت مناسب تجربه کنید و مهارت‌های خود را در حوزه‌های مختلف توسعه دهید.
-        </p>
-        </div>
+    <div class="ui inverted vertical teal_menu footer segment" dir="rtl">
+        <div class="ui stackable grid container" style="padding-top: 2em; padding-bottom: 2em;">
+            <div class="six wide column" style="padding-left: 2em;">
+                <h4 class="ui inverted header" style="margin-bottom: 1em;">تخفیف کلاس</h4>
+                <p style="line-height: 1.8; text-align: justify;">
+                    تخفیف کلاس، مرجع جدیدترین تخفیف‌های دوره‌های آموزشی آنلاین از معتبرترین وب‌سایت‌های ایرانی است. ما به شما کمک می‌کنیم تا آموزش‌های باکیفیت را با قیمت مناسب تجربه کنید و مهارت‌های خود را در حوزه‌های مختلف توسعه دهید.
+                </p>
+            </div>
 
-        <div class="five wide column">
-        <h4 class="ui inverted header" style="text-align: left;">دسترسی سریع</h4>
-        <div class="ui inverted link list" style="text-align: left;">
-            <a href="/" class="item">صفحه اصلی</a>
-            <a href="/about" class="item">درباره ما</a>
-            <a href="/contact" class="item">تماس با ما </a>
-            <!-- <div class="five wide column" style="text-align: left;">
-            <h4 class="ui inverted header">تخفیف کلاس</h4>
-            <p style="color: #ccc;"> -->
+            <div class="three wide column" style="margin-right: 2em;"></div>
+            <div class="ui inverted link list" style="text-align: right;">
+                    <h4 class="ui inverted header" style="text-align: right; margin-bottom: 1em;">دسترسی سریع</h4>
+                    <a href="/" class="item">صفحه اصلی</a>
+                    <a href="/about" class="item">درباره ما</a>
+                    <a href="/contact" class="item">تماس با ما </a>
+                </div>
+            </div>
         </div>
-        </div>
-
-            <!-- © {{ current_year }} تخفیف کلاس - همه حقوق محفوظ است. -->
-        </p>
-        </div>
-
-    </div>
     </div>
 
-    <!-- Script -->
     <script>
         $('.ui.dropdown').dropdown();
         {% if data.tab %}
