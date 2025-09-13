@@ -260,10 +260,18 @@ def home(category=None):
     return render_template('home.html', data=data)
 
 
+@app.route("/.well-known/appspecific/com.chrome.devtools.json")
+def devtools_json():
+    # This function can simply return a 404 Not Found error
+    # or an empty response, as this is not a path you want to serve.
+    from flask import jsonify, abort
+    abort(404)
+
 @app.get('/<website>/<course_id>/')
 @app.get('/<website>/<course_id>')
 @app.get('/<website>/<course_id>/<course_url_name>')
 def course(website, course_id, course_url_name=None):
+    course_id = int(course_id)
     course_class = get_course_class()
     course = course_class.objects(course_id=course_id, website=website).first()
     new_desc = OptimizedCourse.objects(course_id=course_id, website=website).first()
