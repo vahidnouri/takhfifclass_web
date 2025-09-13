@@ -4,41 +4,58 @@
     <title>{{ data.title }}</title>
     <meta name="title" content="{{ data.title }}">
     <meta name="description" content="{{ data.meta | default('') }}">
+    <style>
+        /* New styles for CTA button hover effect */
+        .ui.teal.fluid.button.cta-button {
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+        }
+        .ui.teal.fluid.button.cta-button:hover {
+            box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.6) !important; /* Gold glow effect */
+            transform: translateY(-2px); /* Slight lift effect */
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
     <div class="ui text container" style="padding-top: 5em;">
         <img class="ui centered large rounded image" style="margin-top: 2em; margin-bottom: 2em;" src= {{data.course_image}} >
         <div class="ui main text container">
-            <h1 class="ui header" dir ="rtl">{{data.title}}</h1>
+            <h1 class="ui header" dir ="rtl" style="color: #2F4F4F;">{{data.title}}</h1>
         </div>
         <div class="certificate">
             {% if data.certificate %}
-                <span>📜 این دوره دارای گواهینامه پایان دوره است</span>
+                <span style="color: #4CAF50;">📜 این دوره دارای گواهینامه پایان دوره است</span>
             {% endif %}
         </div>
 
         <div class="">
-            <a href={{data.class_link}} class="ui teal fluid button" id="course-reg-btn" style="margin: 2em 0 2em 0;" target="_blank">ثبت نام در کلاس</a>        
+            <div style="text-align: center; margin-bottom: 1em;">
+                <p>
+                    <p style="margin-top: 1em;">
+                        <span style="font-size: 1.2em; font-weight: bold; color: #2F4F4F;">قیمت فعلی:</span>
+                        <span style="font-size: 1.2em; text-decoration: line-through; color: #A9A9A9;">{{ data.main_price | persian_price }}</span>
+                        <span style="font-size: 1.5em; font-weight: bold; color: #D22B2B;">{{ data.discounted_price | persian_price}} تومان</span>
+                    </p>
+                <p style="font-size: 0.8em; color: #767676;">قیمت دوره‌ها ممکن است توسط سایت‌های مبدا تغییر کنند</p>
+            </div>
+            <a href={{data.class_link}} class="ui teal fluid button cta-button" id="course-reg-btn" style="margin: 2em 0 2em 0; background-color: #008080 !important;" target="_blank">ثبت نام در کلاس</a>        
             <div id="description"></div>
         
-            <!-- Short preview (first 300 characters, or whatever limit you prefer) -->
-                <div id="short-description" dir="rtl">
-                    <h2 class="course-description"> {{ data.short_description | safe }} </h2>  
+            <div id="short-description" dir="rtl">
+                    <h2 class="course-description" style="color: #2F4F4F;"> {{ data.short_description | safe }} </h2>  
                     <div style="text-align: center;">
-                        <button class="ui tertiary teal button" id="toggle-btn" onclick="toggleDescription(event)">اطلاعات بیشتر</button>  
+                        <button class="ui tertiary button" id="toggle-btn" onclick="toggleDescription(event)" style="color: #008080 !important;">اطلاعات بیشتر</button>  
                     </div>
                 </div>
-                <!-- Full description (initially hidden) -->
                 <div id="full-description" style="display: none;" dir="rtl">
-                    <h2 class="course-description">  {{data.full_description | safe }} </h2>
+                    <h2 class="course-description" style="color: #2F4F4F;">  {{data.full_description | safe }} </h2>
                     <strong> {{ data.cta.strip('\"') | safe }} </strong>
                     <br>
                     <br>
-                    <a href={{data.class_link}} class="ui teal fluid button" id="course-reg-btn" target="_blank">ثبت نام در کلاس</a>
+                    <a href={{data.class_link}} class="ui teal fluid button cta-button" id="course-reg-btn" style="background-color: #008080 !important;" target="_blank">ثبت نام در کلاس</a>
                     <br>
                     <div style="text-align: center;">
-                        <button class="ui tertiary teal button" id="toggle-btn-hide" onclick="toggleDescription(event)">مخفی کردن</button>
+                        <button class="ui tertiary button" id="toggle-btn-hide" onclick="toggleDescription(event)" style="color: #008080 !important;">مخفی کردن</button>
                     </div>
                 </div> 
     
@@ -49,9 +66,8 @@
 
         <div class="ui center aligned container">
             <div class="ui column">
-                <!-- Related Courses Section -->
                 <div style="margin-top: 2em; margin-bottom: 3em;">
-                    <h4 class="ui teal horizontal divider header">
+                    <h4 class="ui horizontal divider header" style="color: #008080 !important;">
                         &nbsp;
                         دوره‌های پیشنهادی
                         &nbsp;
@@ -65,7 +81,7 @@
                                     <img src="{{ course.img_url }}" alt="{{ course.title }}">
                                 </div>
                                 <div class="content">
-                                    <h4 class="ui header">{{ course.title }}</h4>
+                                    <h4 class="ui header" style="color: #008080;">{{ course.title }}</h4>
                                     </div>
                                 </div>
                             </a>
