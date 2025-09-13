@@ -51,7 +51,7 @@ class Course(Document):
     )
 
 class Course_prime(Document):
-    course_id = StringField()
+    course_id = IntField()
     title = StringField()
     datetime = DateTimeField()
     teacher = StringField()
