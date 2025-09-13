@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% from "macro/pagination.html" import pagination %}
 
-<!--  -->
 {% block head %}
 <style>
 .category-label-mobile {
@@ -23,25 +22,19 @@
 <meta name="keywords" content="{{ data.keywords| join(',')}}" />
 {% endblock %}
 
-<!--  -->
-
 {% block content %}
-<div class="ui teal inverted vertical masthead center aligned segment" style="margin-bottom: 4em;">
+<div class="ui teal inverted vertical masthead center aligned segment" style="margin-bottom: 4em; background-color: #008080 !important;">
     <div class="ui container">
         <div class="ui large secondary inverted pointing menu">
-            <!-- RIGHT MENU -->
             <div class="right menu">
                 <a class="item" href="/">
                     <img class="ui mini image" src="/static/logo.png">
-                    <!-- <i class="percent icon"></i> -->
                     &nbsp;&nbsp;
-                    <span style="font-weight: bold;">
+                    <span style="font-weight: bold; color: #FFD700 !important;">
                         تخفیف کلاس
                     </span>
                 </a>
             </div>
-            <!--  -->
-            <!-- LEFT MENU -->
             <div class="left menu">
                 <div class="left item">
                     <div class="ui category search">
@@ -53,10 +46,8 @@
                     </div>
                 </div>
             </div>
-            <!--  -->
-        </div>
+            </div>
     </div>
-    <!--  -->
     <div class="ui container" style="padding:2em 0 1em 0;">
              <div class="ui two column centered grid" style="gap: 1.5em 0;">
         {% for cat in data.category_cards %}
@@ -66,7 +57,7 @@
             {% endif %}
             <div class="three wide column" style="display: flex; flex-direction: column; align-items: center;">
                 <a class="image" href="/{{ cat.name }}">
-                    <img class="ui circular image category-icon" src="{{ url_for('static', filename='images/' ~ cat.image) }}" alt="{{ cat.title }}">
+                    <img class="ui circular image category-icon" src="{{ url_for('static', filename='images/' ~ cat.image) }}" alt="{{ cat.title }}" style="box-shadow: 0 0 0 rgba(255, 215, 0, 0);">
                 </a>
                 <div class="category-label-mobile" style="text-align:center; margin-top: 0.5em; display:none;">
                     <a class="header" href="/{{ cat.name }}">{{ cat.title }}</a>
@@ -77,50 +68,54 @@
         </div>
     </div>
 </div>
-<!--  -->
-<!-- REVIEWS -->
 <div class="ui container">
 
-    <!-- Filter Form -->
     <form method="get" action="{{ '/' + data.category + '/' if data.category else '/' }}" class="ui form" style="margin-bottom: 2em;">
-        <div class="inline fields">
-            <label>نوع کلاس مورد نظر:</label>
-            <div class="field">
-                <div class="ui radio checkbox">
-                    <input type="radio" name="filter" value="discounted" {% if data.filter == 'discounted' %}checked{% endif %}>
-                    <label>با تخفیف</label>
-                </div>
-            </div>
-            <div class="field">
-                <div class="ui radio checkbox">
-                    <input type="radio" name="filter" value="free" {% if data.filter == 'free' %}checked{% endif %}>
-                    <label>رایگان</label>
-                </div>
-            </div>
-            <div class="field">
-                <div class="ui radio checkbox">
-                    <input type="radio" name="filter" value="certificate" {% if data.filter == 'certificate' %}checked{% endif %}>
-                    <label>دارای گواهینامه</label>
-                </div>
-            </div>
-            <div class="field">
-                <div class="ui radio checkbox">
-                    <input type="radio" name="filter" value="all" {% if data.filter == 'all' %}checked{% endif %}>
-                    <label>همه موارد</label>
-                </div>
-            </div>
-            <div class="field">
-                <button class="ui primary button" type="submit">اعمال</button>
-            </div>
-        </div>
+        <div class="ui stackable grid" style="align-items: center;">
+    <div class="sixteen wide column">
+        <label style="color: #2F4F4F;">نوع کلاس مورد نظر:</label>
+    </div>
 
-        <!-- Preserve query params -->
+    <div class="four wide column">
+        <div class="ui radio checkbox">
+            <input type="radio" name="filter" value="discounted" {% if data.filter == 'discounted' %}checked{% endif %}>
+            <label style="color: #2F4F4F;">با تخفیف</label>
+        </div>
+    </div>
+
+    <div class="four wide column">
+        <div class="ui radio checkbox">
+            <input type="radio" name="filter" value="free" {% if data.filter == 'free' %}checked{% endif %}>
+            <label style="color: #2F4F4F;">رایگان</label>
+        </div>
+    </div>
+
+    <div class="four wide column">
+        <div class="ui radio checkbox">
+            <input type="radio" name="filter" value="certificate" {% if data.filter == 'certificate' %}checked{% endif %}>
+            <label style="color: #2F4F4F;">دارای گواهینامه</label>
+        </div>
+    </div>
+
+    <div class="four wide column">
+        <div class="ui radio checkbox">
+            <input type="radio" name="filter" value="all" {% if data.filter == 'all' %}checked{% endif %}>
+            <label style="color: #2F4F4F;">همه موارد</label>
+        </div>
+    </div>
+
+    <div class="sixteen wide column">
+        <button class="ui button" type="submit" style="background-color: #F4C430 !important; color: white !important;">
+            اعمال
+        </button>
+    </div>
+</div>
+
+
         <input type="hidden" name="q" value="{{ data.search_query }}">
         <input type="hidden" name="page_size" value="20">
-        <input type="hidden" name="page" value="1">  <!-- Reset to page 1 when filtering -->
-    </form>
+        <input type="hidden" name="page" value="1">  </form>
 
-    <!-- Course Cards -->
     <div class="ui link stackable centered four cards">
         {% for i in data.posts %}
         <div class="ui raised link card">
@@ -134,21 +129,21 @@
                 </div>
                 <div class="certificate">
                     {% if i.certificate %}
-                        <span>📜دریافت گواهینامه</span>
+                        <span style="color: #4CAF50;">📜دریافت گواهینامه</span>
                     {% endif %}
                 </div>
                 <div class="description">
                     قیمت
                     &nbsp;
                     {% if i.is_free %}
-                        <p>رایگان</p>
+                        <p style="color: #4CAF50;">رایگان</p>
                     {% elif i.has_discount %}
-                        <del>{{ i.main_price | persian_price }}</del>
+                        <del style="color: #A9A9A9;">{{ i.main_price | persian_price }}</del>
                         &nbsp;
-                        <strong>{{ i.discounted_price | persian_price }}</strong>
+                        <strong style="color: #D22B2B;">{{ i.discounted_price | persian_price }}</strong>
                         &nbsp;تومان
                     {% else %}
-                        <p>منقضی شده</p>
+                        <p style="color: #A9A9A9;">منقضی شده</p>
                     {% endif %}
                 </div>
             </div>
@@ -157,7 +152,7 @@
                     {{ i.date | persian_date }}
                 </span>
                 <span>
-                    <i class="percentage icon"></i>
+                    <i class="percentage icon" style="color: #D22B2B;"></i>
                     {{ i.discount_percentage | persian }}
                 </span>
             </div>
@@ -165,7 +160,6 @@
         {% endfor %}
     </div>
 
-    <!-- Pagination -->
     <div style="padding: 2em 0 2em 0;">
         {{ pagination(data.current_page, data.pages, data.last_page, data.page_urls) }}
         
@@ -173,12 +167,10 @@
 
 </div>
 
-<!-- Fomantic Checkbox Init -->
 <script>
   $('.ui.radio.checkbox').checkbox();
 </script>
 
-<!--  -->
 <script>
     $(".masthead").visibility({
         once: false,
