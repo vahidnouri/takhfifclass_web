@@ -31,11 +31,20 @@
         <div class="">
             <div style="text-align: center; margin-bottom: 1em;">
                 <p>
-                    <p style="margin-top: 1em;">
-                        <span style="font-size: 1.2em; font-weight: bold; color: #2F4F4F;">قیمت فعلی:</span>
-                        <span style="font-size: 1.2em; text-decoration: line-through; color: #A9A9A9;">{{ data.main_price | persian_price }}</span>
-                        <span style="font-size: 1.5em; font-weight: bold; color: #D22B2B;">{{ data.discounted_price | persian_price}} تومان</span>
-                    </p>
+                <p style="margin-top: 1em;">
+                    <span style="font-size: 1.2em; font-weight: bold; color: #2F4F4F;">قیمت فعلی:</span>
+                    {% if data.main_price == 0 %}
+                        <span style="font-size: 1.5em; font-weight: bold; color: green;">رایگان</span>
+                    {% else %}
+                        <span style="font-size: 1.2em; text-decoration: line-through; color: #A9A9A9;">
+                            {{ data.main_price | persian_price }}
+                        </span>
+                        <span style="font-size: 1.5em; font-weight: bold; color: #D22B2B;">
+                            {{ data.discounted_price | persian_price }} تومان
+                        </span>
+                    {% endif %}
+                </p>
+
                 <p style="font-size: 0.8em; color: #767676;">قیمت دوره‌ها ممکن است توسط سایت‌های مبدا تغییر کنند</p>
             </div>
             <a href={{data.class_link}} class="ui teal fluid button cta-button" id="course-reg-btn" style="margin: 2em 0 2em 0; background-color: #008080 !important;" target="_blank">ثبت نام در کلاس</a>        
