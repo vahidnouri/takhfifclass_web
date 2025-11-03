@@ -15,6 +15,7 @@ from persiantools.jdatetime import JalaliDateTime
 from zoneinfo import ZoneInfo
 from flask import redirect
 import time
+import ast
 
 
 # Persian month names
@@ -296,6 +297,11 @@ def course(website, course_id, course_url_name=None):
     full_desc = full_desc.replace('<table>', '<table class="table table-bordered table-striped">')
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
+    tags = ast.literal_eval(course.tag)  
+    tags.append(course.Teacher)
+    if 'همه آموزش ها' in tags:
+        tags.remove('همه آموزش ها')
+    tags = list(dict.fromkeys(tags))
     data = {'title': course.title,
             'short_description': preview_desc,
             'course_image': course.img_url,
@@ -310,6 +316,7 @@ def course(website, course_id, course_url_name=None):
             'cta': cta,
             'meta': meta,
             'menu': category_menu,
+            'tags': tags
             }
     return render_template('example.html', data=data)
 
@@ -363,49 +370,72 @@ def search(query):
 def full_results(query):
     start = time.time()
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
-
-    # 1. Search in Course collection
     course_class = get_course_class()
-    course_results = course_class.objects(
-    __raw__={"$text": {"$search": query}}
-    ).only("title", "tag", "Teacher", "category_1", "date", "course_id", "website", "img_url", "discount_percentage", "main_price", "discounted_price", "affiliate_link", "certificate", "course_url_name","is_free", "has_discount").limit(20)
 
+    # -----------------------------
+    # 1. Check if query matches any Teacher name
+    # -----------------------------
+    teacher_matches = course_class.objects(Teacher=regex).only(
+        "title", "tag", "Teacher", "category_1", "date", "course_id", "website",
+        "img_url", "discount_percentage", "main_price", "discounted_price",
+        "affiliate_link", "certificate", "course_url_name", "is_free", "has_discount"
+    )
 
-    # 2. Search in OptimizedCourse (only if first 1000 words match)
-    matched_ids = set()
-    # desc_matches = OptimizedCourse.objects.only('course_id', 'website', 'new_description', 'short_description')
-    desc_matches = OptimizedCourse.objects.filter(short_description=regex).only('course_id', 'website')
-    matched_ids = set((d.course_id, d.website) for d in desc_matches)
+    if teacher_matches.count() > 0:
+        # If found any teachers, show all their courses (skip text search)
+        all_courses = list(teacher_matches)
+        print(f"Teacher search detected for '{query}'")
+    else:
+        # -----------------------------
+        # 2. Normal full search (original code)
+        # -----------------------------
+        course_results = course_class.objects(
+            __raw__={"$text": {"$search": query}}
+        ).only(
+            "title", "tag", "Teacher", "category_1", "date", "course_id", "website",
+            "img_url", "discount_percentage", "main_price", "discounted_price",
+            "affiliate_link", "certificate", "course_url_name", "is_free", "has_discount"
+        ).limit(20)
 
-    # 3. Additional courses based on matching descriptions
-    extra_courses = []
-    if matched_ids:
-        or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
-        extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions}).only(
-    "title", "tag", "Teacher", "category_1", "date", "course_id", "website", "img_url", "is_free", "has_discount", 
-    "discount_percentage", "main_price", "discounted_price", "affiliate_link", "certificate", "course_url_name"
-)
+        # Search in OptimizedCourse descriptions
+        matched_ids = set()
+        desc_matches = OptimizedCourse.objects.filter(short_description=regex).only('course_id', 'website')
+        matched_ids = set((d.course_id, d.website) for d in desc_matches)
 
-    # 4. Combine and deduplicate courses
-    combined = list(course_results) + list(extra_courses)
-    unique_courses = {}
-    for c in combined:
-        key = (c.course_id, c.website)
-        if key not in unique_courses:
-            unique_courses[key] = c
+        # Additional courses from matched descriptions
+        extra_courses = []
+        if matched_ids:
+            or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
+            extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions}).only(
+                "title", "tag", "Teacher", "category_1", "date", "course_id", "website",
+                "img_url", "is_free", "has_discount",
+                "discount_percentage", "main_price", "discounted_price",
+                "affiliate_link", "certificate", "course_url_name"
+            )
 
-    # 5. Pagination
-    all_courses = list(unique_courses.values())
+        # Combine and deduplicate courses
+        combined = list(course_results) + list(extra_courses)
+        unique_courses = {}
+        for c in combined:
+            key = (c.course_id, c.website)
+            if key not in unique_courses:
+                unique_courses[key] = c
+
+        all_courses = list(unique_courses.values())
+
+    # -----------------------------
+    # 3. Pagination
+    # -----------------------------
     count = len(all_courses)
     page = int(request.args.get('page', 1))
     page_size = int(request.args.get('page_size', 20))
     pages_count = ceil(count / page_size)
 
-    # Sort and slice
+    # Sort by discount and slice for pagination
     sorted_courses = sorted(all_courses, key=lambda x: x.discount_percentage or 0, reverse=True)
     posts = sorted_courses[(page - 1) * page_size: page * page_size]
 
-    # Pagination UI
+    # Pagination navigation
     previous_pages = list(range(1, page))
     next_pages = list(range(page, pages_count + 1))
     pages = previous_pages[-2:] + next_pages[:3]
@@ -417,11 +447,12 @@ def full_results(query):
         query_params = {'page': i, 'page_size': page_size}
         page_urls[i] = url_for('full_results', query=query, **query_params)
 
-    # Category menu
+    # -----------------------------
+    # 4. Category menu and render
+    # -----------------------------
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
 
-    # Final context data
     data = {
         'keywords': [query],
         'menu': category_menu,
@@ -431,6 +462,7 @@ def full_results(query):
         'last_page': pages_count,
         'page_urls': page_urls,
     }
+
     print(f"Query time: {time.time() - start} seconds")
 
     return render_template("search_results.html", courses=posts, query=query, data=data)
