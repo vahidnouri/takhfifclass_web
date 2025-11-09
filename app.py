@@ -30,6 +30,19 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'fallback-secret')
 cors.init_app(app)
 db.init_app(app)
 
+# Matomo configuration (optional)
+app.config['MATOMO_URL'] = os.getenv('MATOMO_URL', '')
+app.config['MATOMO_SITE_ID'] = os.getenv('MATOMO_SITE_ID', '')
+
+
+@app.context_processor
+def inject_matomo():
+    """Make MATOMO_URL and MATOMO_SITE_ID available in all templates.
+
+    These come from environment variables and are empty by default.
+    """
+    return dict(MATOMO_URL=app.config.get('MATOMO_URL', ''), MATOMO_SITE_ID=app.config.get('MATOMO_SITE_ID', ''))
+
 db2 = get_db()
 contact_collection = ContactMessages.objects
 
