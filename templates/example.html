@@ -13,6 +13,20 @@
             box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.6) !important; /* Gold glow effect */
             transform: translateY(-2px); /* Slight lift effect */
         }
+                .tag-button {
+            display: inline-block;
+            margin: 3px;
+            padding: 5px 10px;
+            background-color: #eef;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .tag-button:hover {
+            background-color: #cce;
+        }
     </style>
 {% endblock %}
 
@@ -50,9 +64,17 @@
             </p>
 
 
-                <p style="font-size: 0.8em; color: #767676;">قیمت دوره‌ها ممکن است توسط سایت‌های مبدا تغییر کنند</p>
+                <p style="font-size: 0.8em; color: #767676;">قیمت دوره‌ ممکن است توسط سایت مبدا تغییر کند</p>
             </div>
             <a href={{data.class_link}} class="ui teal fluid button cta-button" id="course-reg-btn" style="margin: 2em 0 2em 0; background-color: #008080 !important;" target="_blank">ثبت نام در کلاس</a>        
+            
+            <div class="tags">
+                {% for tag in data.tags %}
+                    <a href="{{ url_for('full_results', query=tag) }}" class="tag-button">
+                    {{ tag }}
+                    </a>
+                {% endfor %}
+            </div>
             <div id="description"></div>
         
             <div id="short-description" dir="rtl">

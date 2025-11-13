@@ -11,11 +11,49 @@ services:
       FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
       # Compose will substitute the variables defined in .env here:
       MONGODB_URI: "mongodb://${MONGO_USER}:${MONGO_PASS}@${MONGO_HOST}:${MONGO_PORT}/${MONGO_DB}?authSource=${AUTH_SOURCE}"
+      # Optional: point Matomo URL (http(s)://your-matomo-domain/)
+      MATOMO_URL: ${MATOMO_URL:-}
+      MATOMO_SITE_ID: ${MATOMO_SITE_ID:-}
     volumes:
       - .:/app
     networks:
       - cloudflare
 
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MATOMO_MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MATOMO_MYSQL_DATABASE:-matomo}
+      MYSQL_USER: ${MATOMO_MYSQL_USER:-matomo}
+      MYSQL_PASSWORD: ${MATOMO_MYSQL_PASSWORD:-matomo_password}
+    volumes:
+      - matomo_db_data:/var/lib/mysql
+    networks:
+      - cloudflare
+
+  matomo:
+    image: matomo:latest
+    depends_on:
+      - db
+    restart: unless-stopped
+    environment:
+      MATOMO_DATABASE_HOST: db
+      MATOMO_DATABASE_ADAPTER: mysql
+      MATOMO_DATABASE_TABLES_PREFIX: matomo_
+      MATOMO_DATABASE_USERNAME: ${MATOMO_MYSQL_USER:-matomo}
+      MATOMO_DATABASE_PASSWORD: ${MATOMO_MYSQL_PASSWORD:-matomo_password}
+      MATOMO_DATABASE_DBNAME: ${MATOMO_MYSQL_DATABASE:-matomo}
+    volumes:
+      - matomo_data:/var/www/html
+    ports:
+      - "8080:80" # Expose Matomo web UI on 8080 (adjust as needed)
+    networks:
+      - cloudflare
+
+volumes:
+  matomo_data:
+  matomo_db_data:
 
 networks:
   cloudflare:
