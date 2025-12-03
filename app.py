@@ -278,7 +278,6 @@ def home(category=None):
 def devtools_json():
     # This function can simply return a 404 Not Found error
     # or an empty response, as this is not a path you want to serve.
-    from flask import jsonify, abort
     abort(404)
 
 @app.get('/<website>/<course_id>/')
@@ -386,59 +385,51 @@ def full_results(query):
     course_class = get_course_class()
 
     # -----------------------------
-    # 1. Check if query matches any Teacher name
+    # 1. LIGHT SEARCH (fast, minimal fields)
     # -----------------------------
-    teacher_matches = course_class.objects(Teacher=regex).only(
-        "title", "tag", "Teacher", "category_1", "date", "course_id", "website",
-        "img_url", "discount_percentage", "main_price", "discounted_price",
-        "affiliate_link", "certificate", "course_url_name", "is_free", "has_discount"
-    )
+    search_ids = set()
 
-    if teacher_matches.count() > 0:
-        # If found any teachers, show all their courses (skip text search)
-        all_courses = list(teacher_matches)
-        print(f"Teacher search detected for '{query}'")
-    else:
-        # -----------------------------
-        # 2. Normal full search (original code)
-        # -----------------------------
-        course_results = course_class.objects(
-            __raw__={"$text": {"$search": query}}
-        ).only(
+    # 1A. text search on main course
+    text_matches = course_class.objects(
+        __raw__={"$text": {"$search": query}}
+    ).only("title", "website")  # minimal fields for speed
+
+    for c in text_matches:
+        search_ids.add((c.course_id, c.website))
+
+    # 1B. regex search in OptimizedCourse.short_description
+    desc_matches = OptimizedCourse.objects(short_description=regex).only("course_id", "website")
+    for d in desc_matches:
+        search_ids.add((d.course_id, d.website))
+
+    # 1C. regex search on lightweight fields
+    regex_matches = course_class.objects(
+        __raw__={"$or": [
+            {"title": regex},
+            {"Teacher": regex},
+        ]}
+    ).only("course_id", "website")
+
+    for r in regex_matches:
+        search_ids.add((r.course_id, r.website))
+
+    # -----------------------------
+    # 2. FETCH FULL COURSE INFO (heavy fields)
+    # -----------------------------
+    if search_ids:
+        or_conditions = [{"course_id": cid, "website": site} for cid, site in search_ids]
+        full_courses = course_class.objects(__raw__={"$or": or_conditions}).only(
             "title", "tag", "Teacher", "category_1", "date", "course_id", "website",
             "img_url", "discount_percentage", "main_price", "discounted_price",
             "affiliate_link", "certificate", "course_url_name", "is_free", "has_discount"
-        ).limit(20)
-
-        # Search in OptimizedCourse descriptions
-        matched_ids = set()
-        desc_matches = OptimizedCourse.objects.filter(short_description=regex).only('course_id', 'website')
-        matched_ids = set((d.course_id, d.website) for d in desc_matches)
-
-        # Additional courses from matched descriptions
-        extra_courses = []
-        if matched_ids:
-            or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
-            extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions}).only(
-                "title", "tag", "Teacher", "category_1", "date", "course_id", "website",
-                "img_url", "is_free", "has_discount",
-                "discount_percentage", "main_price", "discounted_price",
-                "affiliate_link", "certificate", "course_url_name"
-            )
-
-        # Combine and deduplicate courses
-        combined = list(course_results) + list(extra_courses)
-        unique_courses = {}
-        for c in combined:
-            key = (c.course_id, c.website)
-            if key not in unique_courses:
-                unique_courses[key] = c
-
-        all_courses = list(unique_courses.values())
+        )
+    else:
+        full_courses = []
 
     # -----------------------------
     # 3. Pagination
     # -----------------------------
+    all_courses = list(full_courses)
     count = len(all_courses)
     page = int(request.args.get('page', 1))
     page_size = int(request.args.get('page_size', 20))
@@ -457,8 +448,7 @@ def full_results(query):
     page_urls = {}
     all_needed_pages = set(pages + [1, pages_count])
     for i in all_needed_pages:
-        query_params = {'page': i, 'page_size': page_size}
-        page_urls[i] = url_for('full_results', query=query, **query_params)
+        page_urls[i] = url_for('full_results', query=query, page=i, page_size=page_size)
 
     # -----------------------------
     # 4. Category menu and render
