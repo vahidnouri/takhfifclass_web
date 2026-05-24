@@ -59,13 +59,23 @@ def traffic_advice():
 
 def get_course_class():
     config = Config.objects.first()
-    match config.course_source:
-        case 'Course' | 'course':
-            return Course
-        case 'Course_prime' | 'course_prime':
-            return Course_prime
-        case _:
-            return Course
+    source = ''
+    if config is not None:
+        source = getattr(config, 'course_source', '') or ''
+        source = source.strip().lower()
+
+    if source == 'course_prime':
+        return Course_prime
+    return Course
+
+
+def course_attr(course, *names, default=None):
+    for name in names:
+        if hasattr(course, name):
+            value = getattr(course, name)
+            if value is not None:
+                return value
+    return default
 
 # Custom Persian date formatter
 def format_persian_date(dt):
@@ -185,15 +195,16 @@ def home(category=None):
     page_size = int(request.args.get('page_size', 20))
     search_query = request.args.get('q', '')
     #
+    course_class = get_course_class()
+
     # Base filters
     filter_type = request.args.get('filter')  # Optional
-#
     filters = {}
     if filter_type == 'free':
         filters['is_free'] = True
     elif filter_type == 'discounted':
         filters['is_free'] = False
-    elif filter_type == 'certificate':
+    elif filter_type == 'certificate' and course_class == Course:
         filters['certificate'] = True
     elif filter_type == 'all':
         pass
@@ -201,13 +212,15 @@ def home(category=None):
         filters['is_free'] = False  # Default fallback if not specified
 
     if category:
-        filters['category_English'] = category
+        if course_class == Course:
+            filters['category_English'] = category
+        else:
+            filters['category'] = category
     if search_query:
         filters = {'search_text__icontains': search_query}
         category = None
 
     #
-    course_class = get_course_class()
     posts = course_class.objects(**filters).order_by('-discount_percentage', 'id').skip(page_size*(page-1)).limit(page_size)
     count = course_class.objects(**filters).count()
     #
@@ -291,12 +304,16 @@ def course(website, course_id, course_url_name=None):
 
     if not course:
         abort(404, "چنین کلاسی یافت نشد.")
-    # course.description_html = markdown.markdown(course.description)
-    related_courses = list(db2.course.aggregate([
-    {"$match": {"category_1": course.category_1, "_id": {"$ne": course.id}}},
-    {"$sample": {"size": 3}}
-    ]))
 
+    related_collection = course_class._get_collection()
+    related_field = 'category_1' if course_attr(course, 'category_1') else 'category'
+    related_value = course_attr(course, 'category_1', 'category')
+    related_courses = []
+    if related_value is not None:
+        related_courses = list(related_collection.aggregate([
+            {"$match": {related_field: related_value, "_id": {"$ne": course.id}}},
+            {"$sample": {"size": 3}}
+        ]))
 
     # Create preview safely from raw Markdown
     raw_description = new_desc.new_description if new_desc else course.description or ""
@@ -304,16 +321,29 @@ def course(website, course_id, course_url_name=None):
     meta = new_desc.meta_description if new_desc else ""
     raw_preview = raw_description[:300] + "..."
 
-    full_desc = markdown.markdown(raw_description, extensions=['tables'] )
-    preview_desc = markdown.markdown(raw_preview, extensions=['tables'] )
+    full_desc = markdown.markdown(raw_description, extensions=['tables'])
+    preview_desc = markdown.markdown(raw_preview, extensions=['tables'])
     full_desc = full_desc.replace('<table>', '<table class="table table-bordered table-striped">')
     categories = Category.objects
     category_menu = {i.title: i.name for i in categories}
-    tags = ast.literal_eval(course.tag)  
-    tags.append(course.Teacher)
+
+    tags = []
+    raw_tags = course_attr(course, 'tag')
+    if raw_tags:
+        try:
+            tags = ast.literal_eval(raw_tags)
+        except (ValueError, SyntaxError, TypeError):
+            if isinstance(raw_tags, str):
+                tags = [raw_tags]
+
+    teacher_name = course_attr(course, 'Teacher', 'teacher')
+    if teacher_name:
+        tags.append(teacher_name)
+
     if 'همه آموزش ها' in tags:
         tags.remove('همه آموزش ها')
     tags = list(dict.fromkeys(tags))
+
     data = {'title': course.title,
             'short_description': preview_desc,
             'course_image': course.img_url,
@@ -324,7 +354,7 @@ def course(website, course_id, course_url_name=None):
             'class_link': course.affiliate_link,
             'course_name': course.course_url_name,
             'related_courses': related_courses,
-            'certificate': course.certificate,
+            'certificate': course_attr(course, 'certificate', default=False),
             'cta': cta,
             'meta': meta,
             'menu': category_menu,
@@ -339,11 +369,21 @@ def search(query):
     start = time.time()
     regex = re.compile(f'.*{re.escape(query)}.*', re.IGNORECASE)
 
-    # 1. Get course class and initial search by $text (Mongo uses $text only if index exists)
     course_class = get_course_class()
-    course_results = course_class.objects(
-        __raw__={"$text": {"$search": query}}
-    ).only("title", "course_id", "website").limit(20)
+    if course_class == Course:
+        course_results = course_class.objects(
+            __raw__={"$text": {"$search": query}}
+        ).only("title", "course_id", "website").limit(20)
+    else:
+        course_results = course_class.objects(
+            __raw__={"$or": [
+                {"title": regex},
+                {"teacher": regex},
+                {"description": regex},
+                {"summary": regex},
+                {"search_text": regex},
+            ]}
+        ).only("title", "course_id", "website").limit(20)
 
     # 2. Match descriptions via regex from OptimizedCourse
     desc_matches = OptimizedCourse.objects.filter(
@@ -390,9 +430,20 @@ def full_results(query):
     search_ids = set()
 
     # 1A. text search on main course
-    text_matches = course_class.objects(
-        __raw__={"$text": {"$search": query}}
-    ).only("title", "website")  # minimal fields for speed
+    if course_class == Course:
+        text_matches = course_class.objects(
+            __raw__={"$text": {"$search": query}}
+        ).only("title", "website")  # minimal fields for speed
+    else:
+        text_matches = course_class.objects(
+            __raw__={"$or": [
+                {"title": regex},
+                {"teacher": regex},
+                {"description": regex},
+                {"summary": regex},
+                {"search_text": regex},
+            ]}
+        ).only("title", "website")
 
     for c in text_matches:
         search_ids.add((c.course_id, c.website))
@@ -403,10 +454,11 @@ def full_results(query):
         search_ids.add((d.course_id, d.website))
 
     # 1C. regex search on lightweight fields
+    name_search_field = 'Teacher' if course_class == Course else 'teacher'
     regex_matches = course_class.objects(
         __raw__={"$or": [
             {"title": regex},
-            {"Teacher": regex},
+            {name_search_field: regex},
         ]}
     ).only("course_id", "website")
 
@@ -418,11 +470,7 @@ def full_results(query):
     # -----------------------------
     if search_ids:
         or_conditions = [{"course_id": cid, "website": site} for cid, site in search_ids]
-        full_courses = course_class.objects(__raw__={"$or": or_conditions}).only(
-            "title", "tag", "Teacher", "category_1", "date", "course_id", "website",
-            "img_url", "discount_percentage", "main_price", "discounted_price",
-            "affiliate_link", "certificate", "course_url_name", "is_free", "has_discount"
-        )
+        full_courses = course_class.objects(__raw__={"$or": or_conditions})
     else:
         full_courses = []
 
