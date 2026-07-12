@@ -23,6 +23,77 @@ PERSIAN_MONTHS = [
     "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
     "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
 ]
+SEARCH_RANKING = {
+
+    # Base
+    "discount_weight": 1,
+
+    # Provider
+    "preferred_provider": "limoonad",
+    "preferred_provider_bonus": 30,
+
+    # Price
+    "price_bonus": [
+        (5_000_000, 40),
+        (3_000_000, 30),
+        (1_000_000, 20),
+    ],
+
+    # Keywords
+    "keyword_bonus": 10,
+    "keywords": [
+                "جامع",
+                "کامل",
+                "پیشرفته",
+                "صفر",
+                "پکیج",
+                "مستر",
+                "ویژه",
+                "سریع",
+                "پشتیبانی",
+                "جدید",
+                "حرفه‌ای",
+                "همه",
+                "مخصوص",
+            ]
+}
+
+def course_score(course):
+
+    score = 0
+
+    # ------------------------------
+    # Discount
+    # ------------------------------
+    score += (course.discount_percentage or 0) * SEARCH_RANKING["discount_weight"]
+
+    # ------------------------------
+    # Preferred Provider
+    # ------------------------------
+    if course.website == SEARCH_RANKING["preferred_provider"]:
+        score += SEARCH_RANKING["preferred_provider_bonus"]
+
+    # ------------------------------
+    # Price
+    # ------------------------------
+    price = course.main_price or 0
+
+    for limit, bonus in SEARCH_RANKING["price_bonus"]:
+        if price >= limit:
+            score += bonus
+            break
+
+    # ------------------------------
+    # Keywords
+    # ------------------------------
+    title = (course.title or "").lower()
+
+    for keyword in SEARCH_RANKING["keywords"]:
+        if keyword.lower() in title:
+            score += SEARCH_RANKING["keyword_bonus"]
+
+    return score
+
 app = Flask(__name__)
 app.config.from_pyfile('settings.py')
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'fallback-secret')
@@ -484,7 +555,11 @@ def full_results(query):
     pages_count = ceil(count / page_size)
 
     # Sort by discount and slice for pagination
-    sorted_courses = sorted(all_courses, key=lambda x: x.discount_percentage or 0, reverse=True)
+    sorted_courses = sorted(
+                        all_courses,
+                        key=course_score,
+                        reverse=True
+                    )
     posts = sorted_courses[(page - 1) * page_size: page * page_size]
 
     # Pagination navigation
@@ -520,5 +595,5 @@ def full_results(query):
 
 
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
