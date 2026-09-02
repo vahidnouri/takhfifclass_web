@@ -11,7 +11,7 @@ class Course(Document):
     title = StringField(required=True)
     date = DateTimeField()
     main_price = IntField()
-    course_id = IntField(required=True)
+    course_id = StringField(required=True)
     discounted_price = IntField()
     discount_percentage = IntField()
     course_url = URLField(required=True)         # Full course URL
@@ -51,7 +51,7 @@ class Course(Document):
     )
 
 class Course_prime(Document):
-    course_id = IntField()
+    course_id = StringField()
     title = StringField()
     datetime = DateTimeField()
     teacher = StringField()
@@ -90,7 +90,7 @@ class Category(Document):
     )
 
 class OptimizedCourse(Document):
-    course_id = IntField(required=True)
+    course_id = StringField(required=True)
     website = StringField(required=True)
     original_description = StringField(required=True)
     new_description = StringField(required=True)
