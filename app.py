@@ -142,11 +142,93 @@ def get_course_class():
 
 def course_attr(course, *names, default=None):
     for name in names:
-        if hasattr(course, name):
+        if isinstance(course, dict):
+            if name in course and course[name] is not None:
+                return course[name]
+        elif hasattr(course, name):
             value = getattr(course, name)
             if value is not None:
                 return value
     return default
+
+
+def course_public_url(course, external=False):
+    """Return the canonical public URL for a course.
+
+    Providers with a native/source ID keep the legacy three-part URL:
+        /<website>/<course_id>/<course_url_name>
+
+    Providers without a native ID may store their slug in both course_id and
+    course_url_name. In that case the canonical URL is the shorter form:
+        /<website>/<course_id>/
+
+    Comparing the two values (instead of checking whether course_id is numeric)
+    also supports future providers whose real native IDs are strings.
+    """
+    website = course_attr(course, 'website', default='')
+    course_id = course_attr(course, 'course_id', default='')
+    course_url_name = course_attr(course, 'course_url_name', default='')
+
+    if website is None or course_id is None:
+        return '#'
+
+    website = str(website)
+    course_id = str(course_id)
+    course_url_name = str(course_url_name or '')
+
+    if course_url_name and course_url_name != course_id:
+        return url_for(
+            'course',
+            website=website,
+            course_id=course_id,
+            course_url_name=course_url_name,
+            _external=external,
+        )
+
+    # Keep a trailing slash for the short/sluggified URL form.
+    short_url = url_for(
+        'course',
+        website=website,
+        course_id=course_id,
+        _external=external,
+    )
+    return short_url.rstrip('/') + '/'
+
+
+def _find_by_course_id(model, website, course_id):
+    """Find a document during the int -> string migration window.
+
+    We try the string value first (the final schema), then a legacy integer
+    value when the incoming ID is purely numeric. Raw queries intentionally
+    avoid MongoEngine coercing the value back to the model field type.
+    """
+    course_id = str(course_id)
+
+    document = model.objects(
+        __raw__={'website': website, 'course_id': course_id}
+    ).first()
+    if document is not None:
+        return document
+
+    if course_id.isdigit():
+        return model.objects(
+            __raw__={'website': website, 'course_id': int(course_id)}
+        ).first()
+
+    return None
+
+
+def _course_id_variants(course_id):
+    """Return values that may exist while IDs are being migrated."""
+    course_id = str(course_id)
+    variants = [course_id]
+    if course_id.isdigit():
+        variants.append(int(course_id))
+    return variants
+
+
+# Make one URL builder available to every Jinja template.
+app.jinja_env.globals['course_url'] = course_public_url
 
 # Custom Persian date formatter
 def format_persian_date(dt):
@@ -167,7 +249,7 @@ app.jinja_env.filters.update(
     persian=convert_en_numbers,
     persian_price=lambda x: convert_en_numbers(f'{x:,}'),
     persian_date=lambda x: convert_en_numbers(format_persian_date(x)),
-    persian_site=lambda x: {'limoonad': 'لیموناد', 'Limoonad': 'لیموناد', 'maktabkhooneh': 'مکتبخونه', 'Maktabkhooneh': 'مکتبخونه'}.get(x, x)
+    persian_site=lambda x: {'limoonad': 'لیموناد', 'Limoonad': 'لیموناد', 'maktabkhooneh': 'مکتبخونه', 'Maktabkhooneh': 'مکتبخونه', 'novin': 'نوین', 'Novin': 'نوین',}.get(x, x)
 ,
 )
 
@@ -205,7 +287,7 @@ def sitemap():
     courses = course_class.objects.order_by('-discount_percentage').only('course_id', 'website', 'course_url_name')[:1000]
     for course in courses:
         pages.append({
-            'loc': url_for('course', website=course.website, course_id=course.course_id, course_url_name=course.course_url_name, _external=True),
+            'loc': course_public_url(course, external=True),
             'changefreq': 'weekly',
             'priority': '0.6'
         })
@@ -368,13 +450,27 @@ def devtools_json():
 @app.get('/<website>/<course_id>')
 @app.get('/<website>/<course_id>/<course_url_name>')
 def course(website, course_id, course_url_name=None):
-    course_id = int(course_id)
+    course_id = str(course_id)
     course_class = get_course_class()
-    course = course_class.objects(course_id=course_id, website=website).first()
-    new_desc = OptimizedCourse.objects(course_id=course_id, website=website).first()
+    course = _find_by_course_id(course_class, website, course_id)
 
     if not course:
         abort(404, "چنین کلاسی یافت نشد.")
+
+    # Enforce exactly one canonical URL per course.
+    # - Native/source ID: /website/id/slug
+    # - Slug used as ID:   /website/slug/
+    canonical_slug = str(course_attr(course, 'course_url_name', default='') or '')
+    stored_course_id = str(course_attr(course, 'course_id', default=course_id))
+    uses_long_url = bool(canonical_slug and canonical_slug != stored_course_id)
+
+    if uses_long_url:
+        if course_url_name != canonical_slug:
+            return redirect(course_public_url(course), code=301)
+    elif course_url_name is not None or not request.path.endswith('/'):
+        return redirect(course_public_url(course), code=301)
+
+    new_desc = _find_by_course_id(OptimizedCourse, website, stored_course_id)
 
     related_collection = course_class._get_collection()
     related_field = 'category_1' if course_attr(course, 'category_1') else 'category'
@@ -428,6 +524,7 @@ def course(website, course_id, course_url_name=None):
             'certificate': course_attr(course, 'certificate', default=False),
             'cta': cta,
             'meta': meta,
+            'canonical_url': course_public_url(course, external=True),
             'menu': category_menu,
             'tags': tags
             }
@@ -444,7 +541,7 @@ def search(query):
     if course_class == Course:
         course_results = course_class.objects(
             __raw__={"$text": {"$search": query}}
-        ).only("title", "course_id", "website").limit(20)
+        ).only("title", "course_id", "website", "course_url_name").limit(20)
     else:
         course_results = course_class.objects(
             __raw__={"$or": [
@@ -454,20 +551,20 @@ def search(query):
                 {"summary": regex},
                 {"search_text": regex},
             ]}
-        ).only("title", "course_id", "website").limit(20)
+        ).only("title", "course_id", "website", "course_url_name").limit(20)
 
     # 2. Match descriptions via regex from OptimizedCourse
     desc_matches = OptimizedCourse.objects.filter(
         short_description=regex
     ).only('course_id', 'website')
 
-    matched_ids = set((desc.course_id, desc.website) for desc in desc_matches)
+    matched_ids = set((str(desc.course_id), desc.website) for desc in desc_matches)
 
     # 3. Fetch extra courses based on matched_ids
     extra_courses = []
     if matched_ids:
-        or_conditions = [{"course_id": cid, "website": site} for cid, site in matched_ids]
-        extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions}).only("title", "course_id", "website")
+        or_conditions = [{"course_id": {"$in": _course_id_variants(cid)}, "website": site} for cid, site in matched_ids]
+        extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions}).only("title", "course_id", "website", "course_url_name")
 
     # 4. Combine and deduplicate results
     combined = list(course_results) + list(extra_courses)
@@ -480,7 +577,7 @@ def search(query):
     # 5. Build JSON response
     response = [{
         "title": c.title,
-        "url": f"/{c.website}/{c.course_id}/"
+        "url": course_public_url(c)
     } for c in unique_courses.values()]
 
     print(f"Query time: {time.time() - start:.2f} seconds")
@@ -504,7 +601,7 @@ def full_results(query):
     if course_class == Course:
         text_matches = course_class.objects(
             __raw__={"$text": {"$search": query}}
-        ).only("title", "website")  # minimal fields for speed
+        ).only("title", "course_id", "website")  # minimal fields for speed
     else:
         text_matches = course_class.objects(
             __raw__={"$or": [
@@ -514,15 +611,15 @@ def full_results(query):
                 {"summary": regex},
                 {"search_text": regex},
             ]}
-        ).only("title", "website")
+        ).only("title", "course_id", "website")
 
     for c in text_matches:
-        search_ids.add((c.course_id, c.website))
+        search_ids.add((str(c.course_id), c.website))
 
     # 1B. regex search in OptimizedCourse.short_description
     desc_matches = OptimizedCourse.objects(short_description=regex).only("course_id", "website")
     for d in desc_matches:
-        search_ids.add((d.course_id, d.website))
+        search_ids.add((str(d.course_id), d.website))
 
     # 1C. regex search on lightweight fields
     name_search_field = 'Teacher' if course_class == Course else 'teacher'
@@ -534,13 +631,13 @@ def full_results(query):
     ).only("course_id", "website")
 
     for r in regex_matches:
-        search_ids.add((r.course_id, r.website))
+        search_ids.add((str(r.course_id), r.website))
 
     # -----------------------------
     # 2. FETCH FULL COURSE INFO (heavy fields)
     # -----------------------------
     if search_ids:
-        or_conditions = [{"course_id": cid, "website": site} for cid, site in search_ids]
+        or_conditions = [{"course_id": {"$in": _course_id_variants(cid)}, "website": site} for cid, site in search_ids]
         full_courses = course_class.objects(__raw__={"$or": or_conditions})
     else:
         full_courses = []
@@ -595,5 +692,5 @@ def full_results(query):
 
 
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)

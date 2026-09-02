@@ -4,6 +4,7 @@
     <title>{{ data.title }}</title>
     <meta name="title" content="{{ data.title }}">
     <meta name="description" content="{{ data.meta | default('') }}">
+    <link rel="canonical" href="{{ data.canonical_url }}">
     <style>
         /* New styles for CTA button hover effect */
         .ui.teal.fluid.button.cta-button {
@@ -49,7 +50,10 @@
                 <span style="font-size: 1.2em; font-weight: bold; color: #2F4F4F;">قیمت فعلی:</span>
                 {% if data.main_price == 0 %}
                     <span style="font-size: 1.5em; font-weight: bold; color: green;">رایگان</span>
-                {% elif data.main_price == data.discounted_price %}
+                {% elif data.main_price >= data.discounted_price %}
+                    <span style="font-size: 1.2em;">
+                        {{ data.main_price | persian_price }}
+                    </span>
                     <span style="font-size: 1.2em; font-weight: bold; color: red;">
                         در حال حاضر هیچ تخفیفی برای این درس فعال نمی‌باشد
                     </span>
@@ -111,7 +115,7 @@
                     <div class="ui stackable three column grid">
                         {% for course in data.related_courses %}
                         <div class="column">
-                            <a href="/{{ course.website }}/{{ course.course_id }}/{{ course.course_url_name }}" target="_blank">
+                            <a href="{{ course_url(course) }}" target="_blank">
                             <div class="ui fluid card">
                                 <div class="image">
                                     <img src="{{ course.img_url }}" alt="{{ course.title }}">

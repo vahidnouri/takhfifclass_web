@@ -119,11 +119,11 @@
     <div class="ui link stackable centered four cards">
         {% for i in data.posts %}
         <div class="ui raised link card">
-            <a class="image" href="/{{ i.website }}/{{ i.course_id }}/{{ i.course_url_name }}">
+            <a class="image" href="{{ course_url(i) }}">
                 <img src="{{ i.img_url }}" alt="{{ i.title }}">
             </a>
             <div class="content">
-                <a class="header" href="/{{ i.website }}/{{ i.course_id }}/{{ i.course_url_name }}">{{ i.title }}</a>
+                <a class="header" href="{{ course_url(i) }}">{{ i.title }}</a>
                 <div class="meta">
                     <p>{{ i.website | persian_site }}</p>
                 </div>
