@@ -51,9 +51,11 @@
                 {% if data.main_price == 0 %}
                     <span style="font-size: 1.5em; font-weight: bold; color: green;">رایگان</span>
                 {% elif data.main_price > data.discounted_price %}
-
-                    <span style="font-size: 1.2em;">
+                    <span style="font-size: 1.2em; text-decoration: line-through; color: #A9A9A9;">
                         {{ data.main_price | persian_price }}
+                    </span>
+                    <span style="font-size: 1.5em; font-weight: bold; color: #D22B2B;">
+                        {{ data.discounted_price | persian_price }} تومان
                     </span>
                 {% elif data.main_price == data.discounted_price %}
                     <span style="font-size: 1.2em; font-weight: bold; color: red;">
