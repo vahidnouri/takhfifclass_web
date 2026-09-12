@@ -50,10 +50,12 @@
                 <span style="font-size: 1.2em; font-weight: bold; color: #2F4F4F;">قیمت فعلی:</span>
                 {% if data.main_price == 0 %}
                     <span style="font-size: 1.5em; font-weight: bold; color: green;">رایگان</span>
-                {% elif data.main_price >= data.discounted_price %}
+                {% elif data.main_price > data.discounted_price %}
+
                     <span style="font-size: 1.2em;">
                         {{ data.main_price | persian_price }}
                     </span>
+                {% elif data.main_price == data.discounted_price %}
                     <span style="font-size: 1.2em; font-weight: bold; color: red;">
                         در حال حاضر هیچ تخفیفی برای این درس فعال نمی‌باشد
                     </span>
