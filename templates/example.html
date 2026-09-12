@@ -58,6 +58,10 @@
                         {{ data.discounted_price | persian_price }} تومان
                     </span>
                 {% elif data.main_price == data.discounted_price %}
+                    <span style="font-size: 1.5em; font-weight: bold;">
+                        {{ data.main_price | persian_price }} تومان
+                    </span>
+                    <br>
                     <span style="font-size: 1.2em; font-weight: bold; color: red;">
                         در حال حاضر هیچ تخفیفی برای این درس فعال نمی‌باشد
                     </span>

@@ -352,7 +352,7 @@ def home(category=None):
 
     # Base filters
     filter_type = request.args.get('filter')  # Optional
-    filters = {}
+    filters = {'main_price__exists': True}
     if filter_type == 'free':
         filters['is_free'] = True
     elif filter_type == 'discounted':
@@ -540,16 +540,22 @@ def search(query):
     course_class = get_course_class()
     if course_class == Course:
         course_results = course_class.objects(
-            __raw__={"$text": {"$search": query}}
+            __raw__={"$and": [
+                {"$text": {"$search": query}},
+                {"main_price": {"$exists": True}},
+            ]}
         ).only("title", "course_id", "website", "course_url_name").limit(20)
     else:
         course_results = course_class.objects(
-            __raw__={"$or": [
-                {"title": regex},
-                {"teacher": regex},
-                {"description": regex},
-                {"summary": regex},
-                {"search_text": regex},
+            __raw__={"$and": [
+                {"$or": [
+                    {"title": regex},
+                    {"teacher": regex},
+                    {"description": regex},
+                    {"summary": regex},
+                    {"search_text": regex},
+                ]},
+                {"main_price": {"$exists": True}},
             ]}
         ).only("title", "course_id", "website", "course_url_name").limit(20)
 
@@ -564,7 +570,10 @@ def search(query):
     extra_courses = []
     if matched_ids:
         or_conditions = [{"course_id": {"$in": _course_id_variants(cid)}, "website": site} for cid, site in matched_ids]
-        extra_courses = course_class.objects.filter(__raw__={"$or": or_conditions}).only("title", "course_id", "website", "course_url_name")
+        extra_courses = course_class.objects.filter(__raw__={"$and": [
+            {"$or": or_conditions},
+            {"main_price": {"$exists": True}},
+        ]}).only("title", "course_id", "website", "course_url_name")
 
     # 4. Combine and deduplicate results
     combined = list(course_results) + list(extra_courses)
@@ -600,16 +609,22 @@ def full_results(query):
     # 1A. text search on main course
     if course_class == Course:
         text_matches = course_class.objects(
-            __raw__={"$text": {"$search": query}}
+            __raw__={"$and": [
+                {"$text": {"$search": query}},
+                {"main_price": {"$exists": True}},
+            ]}
         ).only("title", "course_id", "website")  # minimal fields for speed
     else:
         text_matches = course_class.objects(
-            __raw__={"$or": [
-                {"title": regex},
-                {"teacher": regex},
-                {"description": regex},
-                {"summary": regex},
-                {"search_text": regex},
+            __raw__={"$and": [
+                {"$or": [
+                    {"title": regex},
+                    {"teacher": regex},
+                    {"description": regex},
+                    {"summary": regex},
+                    {"search_text": regex},
+                ]},
+                {"main_price": {"$exists": True}},
             ]}
         ).only("title", "course_id", "website")
 
@@ -624,9 +639,12 @@ def full_results(query):
     # 1C. regex search on lightweight fields
     name_search_field = 'Teacher' if course_class == Course else 'teacher'
     regex_matches = course_class.objects(
-        __raw__={"$or": [
-            {"title": regex},
-            {name_search_field: regex},
+        __raw__={"$and": [
+            {"$or": [
+                {"title": regex},
+                {name_search_field: regex},
+            ]},
+            {"main_price": {"$exists": True}},
         ]}
     ).only("course_id", "website")
 
@@ -638,7 +656,10 @@ def full_results(query):
     # -----------------------------
     if search_ids:
         or_conditions = [{"course_id": {"$in": _course_id_variants(cid)}, "website": site} for cid, site in search_ids]
-        full_courses = course_class.objects(__raw__={"$or": or_conditions})
+        full_courses = course_class.objects(__raw__={"$and": [
+            {"$or": or_conditions},
+            {"main_price": {"$exists": True}},
+        ]})
     else:
         full_courses = []
 
